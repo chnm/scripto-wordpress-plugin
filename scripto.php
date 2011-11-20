@@ -12,6 +12,9 @@ License: GPL2
 add_action( 'admin_menu', 'scripto_admin_menu_settings' );
 add_action( 'admin_init', 'scripto_admin_init_settings' );
 
+add_filter( 'attachment_fields_to_edit', 'scripto_attachment_fields_to_edit', 10, 2 );
+add_filter( 'attachment_fields_to_save', 'scripto_attachment_fields_to_save', 10, 2 );
+
 /**
  * Display the settings menu.
  */
@@ -48,6 +51,30 @@ function scripto_admin_init_settings() {
 		'scripto_settings_field_mediawiki_api_url', 
 		'scripto_settings_sections_page', 
 		'scripto_settings_section_configuration' );
+}
+
+/**
+ * Add the transcription field to the attachment form.
+ */
+function scripto_attachment_fields_to_edit( $form_fields, $post ) {
+	$form_fields['scripto_attachment_transcription'] = array(
+		'label' => 'Scripto Transcription', 
+		'value' => get_post_meta( $post->ID, '_scripto_attachment_transcription', true ), 
+		'input' => 'textarea', 
+	); 
+	return $form_fields;
+}
+
+/**
+ * Save the attachment transcription to the database.
+ */
+function scripto_attachment_fields_to_save( $post, $attachment ) {
+	if ( isset( $attachment['scripto_attachment_transcription'] ) ) {
+		update_post_meta( $post['ID'], 
+			'_scripto_attachment_transcription', 
+			$attachment['scripto_attachment_transcription'] );
+	}
+	return $post;
 }
 
 /**
@@ -178,4 +205,17 @@ function scripto_get_scripto() {
  */
 function scripto_get_scripto_path() {
 	return dirname(__FILE__) . '/lib';
+}
+
+/**
+ * Debug a variable in the browser.
+ * 
+ * @param mixed $var
+ * @param bool $exit
+ */
+function scripto_debug( $var, $exit = true, $dump = true ) {
+	echo '<pre>';
+	$dump ? var_dump( $var ) : print_r( $var );
+	echo '</pre>';
+	if ( $exit ) exit;
 }
