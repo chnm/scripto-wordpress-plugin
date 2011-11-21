@@ -221,13 +221,13 @@ function scripto_get_setting( $name, $default = false )
 function scripto_get_scripto() {
 	
 	set_include_path(get_include_path() 
-		. PATH_SEPARATOR . scripto_get_option( 'zend_framework_path' ) 
+		. PATH_SEPARATOR . scripto_get_setting( 'zend_framework_path' ) 
 		. PATH_SEPARATOR . scripto_get_scripto_path() );
 	
 	require_once 'Scripto.php';
 	require_once 'ScriptoAdapterWordpress.php';
 	$scripto = new Scripto( new ScriptoAdapterWordpress, 
-		array('api_url' => scripto_get_option('mediawiki_api_url')));
+		array('api_url' => scripto_get_setting( 'mediawiki_api_url' )));
 	
 	return $scripto;
 }
