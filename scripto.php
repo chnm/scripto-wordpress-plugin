@@ -31,9 +31,9 @@ function scripto_admin_menu_settings() {
  */
 function scripto_admin_init_settings() {
 	
-	register_setting( 'scripto_options_group', 
-		'scripto_options', 
-		'scripto_options_validate' );
+	register_setting( 'scripto_settings_group', 
+		'scripto_settings', 
+		'scripto_settings_validate' );
 	
 	add_settings_section( 'scripto_settings_section_configuration', 
 		'Configuration', 
@@ -85,7 +85,7 @@ function scripto_settings() {
 <div class="wrap">
 <h2>Scripto Settings</h2>
 <form method="post" action="options.php">
-<?php settings_fields( 'scripto_options_group' ); ?>
+<?php settings_fields( 'scripto_settings_group' ); ?>
 <?php do_settings_sections( 'scripto_settings_sections_page' ); ?>
 <p class="submit"><input type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes') ?>" /></p>
 </form>
@@ -112,7 +112,7 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
  */
 function scripto_settings_field_mediawiki_api_url() {
 ?>
-<input id="scripto_mediawiki_api_url" name="scripto_options[mediawiki_api_url]" size="60" type="text" value="<?php echo scripto_get_option('mediawiki_api_url'); ?>" />
+<input id="scripto_mediawiki_api_url" name="scripto_settings[mediawiki_api_url]" size="60" type="text" value="<?php echo scripto_get_setting('mediawiki_api_url'); ?>" />
 <?php
 }
 
@@ -121,7 +121,7 @@ function scripto_settings_field_mediawiki_api_url() {
  */
 function scripto_settings_field_zend_framework_path() {
 ?>
-<input id="scripto_zend_framework_path" name="scripto_options[zend_framework_path]" size="60" type="text" value="<?php echo scripto_get_option('zend_framework_path') ?>" />
+<input id="scripto_zend_framework_path" name="scripto_settings[zend_framework_path]" size="60" type="text" value="<?php echo scripto_get_setting('zend_framework_path') ?>" />
 <?php
 }
 
@@ -131,7 +131,7 @@ function scripto_settings_field_zend_framework_path() {
  * @param array $options
  * @return array
  */
-function scripto_options_validate($options) {
+function scripto_settings_validate( $options ) {
 	
 	// Return only options that exist on the settings form.
 	$valid_options['zend_framework_path'] = $options['zend_framework_path'];
@@ -164,15 +164,15 @@ function scripto_options_validate($options) {
 }
 
 /**
- * Get a Scripto option from the option array.
+ * Get a Scripto setting option from the settings array.
  * 
  * @param string $name
  * @param mixed $default
  * @return mixed
  */
-function scripto_get_option( $name, $default = false )
+function scripto_get_setting( $name, $default = false )
 {
-	$options = get_option( 'scripto_options' );
+	$options = get_option( 'scripto_settings' );
 	if ( ! isset($options[$name]) ) {
 		return $default;
 	}
