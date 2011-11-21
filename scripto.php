@@ -9,11 +9,38 @@ Author URI: http://chnm.gmu.edu/
 License: GPL2
 */
 
+register_activation_hook( __FILE__, 'scripto_activation' );
+
 add_action( 'admin_menu', 'scripto_admin_menu_settings' );
 add_action( 'admin_init', 'scripto_admin_init_settings' );
 
 add_filter( 'attachment_fields_to_edit', 'scripto_attachment_fields_to_edit', 10, 2 );
 add_filter( 'attachment_fields_to_save', 'scripto_attachment_fields_to_save', 10, 2 );
+
+add_shortcode( 'scripto_transcription_interface', 'scripto_scripto_transcription_interface_shortcode' );
+
+/**
+ * Activate the plugin.
+ */
+function scripto_activation() {
+	
+	// Insert the transcribe page if not already inserted.
+	$post_id = get_option( 'scripto_transcribe_page_post_id' );
+	$post = get_post( $post_id );
+	if ( ! $post ) {
+		$post = array(
+			'post_type'      => 'page', 
+			'post_status'    => 'publish', 
+			'post_title'     => 'Scripto Transcribe', 
+			'post_content'   => '[scripto_transcription_interface]', 
+			'post_name'      => 'scripto-transcribe', 
+			'comment_status' => 'closed', 
+			'ping-status'    => 'closed', 
+		);
+		$post_id = wp_insert_post( $post );
+		update_option( 'scripto_transcribe_page_post_id', $post_id );
+	}
+}
 
 /**
  * Display the settings menu.
@@ -75,6 +102,13 @@ function scripto_attachment_fields_to_save( $post, $attachment ) {
 			$attachment['scripto_attachment_transcription'] );
 	}
 	return $post;
+}
+
+/**
+ * Display the transcription page content
+ */
+function scripto_scripto_transcription_interface_shortcode( $atts, $content, $code ) {
+	return '';
 }
 
 /**
