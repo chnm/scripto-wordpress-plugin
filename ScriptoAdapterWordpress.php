@@ -4,8 +4,9 @@ require_once 'Scripto/Adapter/Interface.php';
 /**
  * Scripto adapter for WordPress.
  * 
- * For these purposes, a Scripto document is a WordPress post and a Scripto 
- * document page is a WordPress attachment post belonging to a parent post.
+ * For these purposes, a Scripto document is a WordPress post that is not an 
+ * attachment, and a Scripto document page is a WordPress attachment post 
+ * belonging to a parent post.
  */
 class ScriptoAdapterWordpress implements Scripto_Adapter_Interface {
 	
@@ -14,9 +15,17 @@ class ScriptoAdapterWordpress implements Scripto_Adapter_Interface {
 	 */
 	public function documentExists( $post_id ) {
 		$post = get_post( $post_id );
+		
+		// The post must exist.
 		if ( ! $post ) {
 			return false;
 		}
+		
+		// The post must not be the "attachment" post type.
+		if ( 'attachment' == $post->post_type ) {
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -56,11 +65,11 @@ class ScriptoAdapterWordpress implements Scripto_Adapter_Interface {
 		
 		// Get attachments posts.
 		$args = array(
-			'post_type' => 'attachment', 
+			'post_type'   => 'attachment', 
 			'post_parent' => $post_id, 
 			'numberposts' => -1, // get all attachment posts
-			'orderby' => 'menu_order', 
-			'order' => 'ASC',
+			'orderby'     => 'menu_order', 
+			'order'       => 'ASC',
 		);
 		$attachment_posts = get_posts( $args );
 		
@@ -85,11 +94,11 @@ class ScriptoAdapterWordpress implements Scripto_Adapter_Interface {
 	 */
 	public function getDocumentFirstPageId( $post_id ) {
 		$args = array(
-			'post_type' => 'attachment', 
+			'post_type'   => 'attachment', 
 			'post_parent' => $post_id, 
 			'numberposts' => 1, 
-			'orderby' => 'menu_order', 
-			'order' => 'ASC',
+			'orderby'     => 'menu_order', 
+			'order'       => 'ASC',
 		);
 		$attachment_post = get_posts( $args );
 		return $attachment_post->ID;

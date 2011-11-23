@@ -16,29 +16,32 @@ add_action( 'admin_init', 'scripto_admin_init_settings' );
 
 add_filter( 'attachment_fields_to_edit', 'scripto_attachment_fields_to_edit', 10, 2 );
 add_filter( 'attachment_fields_to_save', 'scripto_attachment_fields_to_save', 10, 2 );
+add_filter( 'the_content', 'scripto_the_content_document_page_list' );
 
-add_shortcode( 'scripto_transcription_interface', 'scripto_scripto_transcription_interface_shortcode' );
+add_shortcode( 'scripto', 'scripto' );
 
 /**
  * Activate the plugin.
  */
 function scripto_activation() {
 	
-	// Insert the transcribe page if not already inserted.
-	$post_id = get_option( 'scripto_transcribe_page_post_id' );
-	$post = get_post( $post_id );
+	// Create the Scripto page if not already created. If for any reason the 
+	// page is deleted, the administrator needs only to deactivate and 
+	// reactivate the plugin to reset the page.
+	$page_id = get_option( 'scripto_page_id' );
+	$post = get_post( $page_id );
 	if ( ! $post ) {
 		$post = array(
 			'post_type'      => 'page', 
 			'post_status'    => 'publish', 
-			'post_title'     => 'Scripto Transcribe', 
-			'post_content'   => '[scripto_transcription_interface]', 
-			'post_name'      => 'scripto-transcribe', 
+			'post_title'     => 'Scripto', 
+			'post_content'   => '[scripto]', 
+			'post_name'      => 'scripto', 
 			'comment_status' => 'closed', 
 			'ping-status'    => 'closed', 
 		);
-		$post_id = wp_insert_post( $post );
-		update_option( 'scripto_transcribe_page_post_id', $post_id );
+		$page_id = wp_insert_post( $post );
+		update_option( 'scripto_page_id', $page_id );
 	}
 }
 
@@ -105,10 +108,89 @@ function scripto_attachment_fields_to_save( $post, $attachment ) {
 }
 
 /**
- * Display the transcription page content
+ * Display the document page list.
  */
-function scripto_scripto_transcription_interface_shortcode( $atts, $content, $code ) {
-	return '';
+function scripto_the_content_document_page_list( $content ) {
+	
+	// Display the list only when a single post or page is being displayed.
+	if ( ! is_single() && ! is_page() ) {
+		return $content;
+	}
+	
+	// Get the post's attachments.
+	$args = array(
+		'post_type'   => 'attachment', 
+		'post_parent' => get_the_ID(), 
+		'numberposts' => -1, // get all attachment posts
+		'orderby'     => 'menu_order', 
+		'order'       => 'ASC',
+	);
+	$attachments = get_posts( $args );
+	
+	// Set the required parameters, where "p" is the Scripto application page ID 
+	// and "scripto_doc_id" is the current post's ID. "p=?" always redirects to 
+	// the associated permalink, if any.
+	$params = array(
+		'p' => get_option( 'scripto_page_id' ), 
+		'scripto_doc_id' => get_the_ID(), 
+	);
+	
+	// Append the document page list to the content.
+	ob_start();
+?>
+<?php if ($attachments): ?>
+<h3>Transcribe</h3>
+<ol>
+	<?php foreach ( $attachments as $attachment ): ?>
+	<?php $params['scripto_doc_page_id'] = $attachment->ID; ?>
+	<li><a href="<?php echo home_url( '?' . http_build_query( $params ) ); ?>"><?php echo $attachment->post_title; ?></a></li>
+	<?php endforeach; ?>
+</ol>
+<?php endif; ?>
+<?php
+	$content .= ob_get_contents();
+	ob_end_clean();
+	
+	return $content;
+}
+
+/**
+ * Display the Scripto application.
+ */
+function scripto( $atts, $content, $code ) {
+	
+	// Check for required parameters.
+	if ( ! isset($_GET['scripto_doc_id']) || ! isset($_GET['scripto_doc_page_id']) ) {
+		return;
+	}
+	
+	try {
+		// Load the Scripto document and page.
+		$scripto = scripto_get_scripto();
+		$doc = $scripto->getDocument($_GET['scripto_doc_id']);
+		$doc->setPage($_GET['scripto_doc_page_id']);
+		
+		// Save the transcription.
+		if (isset($_POST['scripto_transcripton'])) {
+			$doc->editTranscriptionPage($_POST['scripto_transcripton']);
+		}
+		
+	} catch (Scripto_Exception $e) {
+		return '<p>' . $e->getMessage() . '</p>';
+	}
+	
+	ob_start();
+?>
+<form action="<?php  ?>" method="post">
+<div><img src="<?php echo $doc->getPageFileUrl(); ?>" /></div>
+	<textarea name="scripto_transcripton" cols="45" rows="12"><?php echo $doc->getTranscriptionPageWikitext(); ?></textarea>
+	<input type="submit" name="scripto_submit_transcription" value="Save Transcription" />
+</form>
+<?php
+	$application = ob_get_contents();
+	ob_end_clean();
+	
+	return $application;
 }
 
 /**
@@ -121,7 +203,7 @@ function scripto_settings() {
 <form method="post" action="options.php">
 <?php settings_fields( 'scripto_settings_group' ); ?>
 <?php do_settings_sections( 'scripto_settings_sections_page' ); ?>
-<p class="submit"><input type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes') ?>" /></p>
+<p class="submit"><input type="submit" class="button-primary" value="Save Changes" /></p>
 </form>
 </div>
 <?php
@@ -238,7 +320,7 @@ function scripto_get_scripto() {
  * @return string
  */
 function scripto_get_scripto_path() {
-	return dirname(__FILE__) . '/lib';
+	return dirname( __FILE__ ) . '/lib';
 }
 
 /**
