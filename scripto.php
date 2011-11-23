@@ -179,18 +179,13 @@ function scripto( $atts, $content, $code ) {
 		return '<p>' . $e->getMessage() . '</p>';
 	}
 	
-	ob_start();
 ?>
 <form action="<?php  ?>" method="post">
-<div><img src="<?php echo $doc->getPageFileUrl(); ?>" /></div>
+	<div><img src="<?php echo $doc->getPageFileUrl(); ?>" /></div>
 	<textarea name="scripto_transcripton" cols="45" rows="12"><?php echo $doc->getTranscriptionPageWikitext(); ?></textarea>
 	<input type="submit" name="scripto_submit_transcription" value="Save Transcription" />
 </form>
 <?php
-	$application = ob_get_contents();
-	ob_end_clean();
-	
-	return $application;
 }
 
 /**
