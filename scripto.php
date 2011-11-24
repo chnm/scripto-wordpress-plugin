@@ -75,7 +75,7 @@ function scripto_uninstall() {
 	);
 	$attachments = get_posts( $args );
 	foreach ( $attachments as $attachment ) {
-		delete_post_meta( $attachment->id, '_scripto_attachment_transcription' );
+		delete_post_meta( $attachment->id, 'scripto_attachment_transcription' );
 	}
 }
 
@@ -134,7 +134,7 @@ function scripto_plugin_action_links_settings( $actions, $plugin_file ) {
 function scripto_attachment_fields_to_edit( $form_fields, $post ) {
 	$form_fields['scripto_attachment_transcription'] = array(
 		'label' => 'Scripto Transcription', 
-		'value' => get_post_meta( $post->ID, '_scripto_attachment_transcription', true ), 
+		'value' => get_post_meta( $post->ID, 'scripto_attachment_transcription', true ), 
 		'input' => 'textarea', 
 	); 
 	return $form_fields;
@@ -146,7 +146,7 @@ function scripto_attachment_fields_to_edit( $form_fields, $post ) {
 function scripto_attachment_fields_to_save( $post, $attachment ) {
 	if ( isset( $attachment['scripto_attachment_transcription'] ) ) {
 		update_post_meta( $post['ID'], 
-			'_scripto_attachment_transcription', 
+			'scripto_attachment_transcription', 
 			$attachment['scripto_attachment_transcription'] );
 	}
 	return $post;
