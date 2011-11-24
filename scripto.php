@@ -10,6 +10,7 @@ License: GPL2
 */
 
 register_activation_hook( __FILE__, 'scripto_activation' );
+register_uninstall_hook( __FILE__, 'scripto_uninstall' );
 
 add_action( 'admin_menu', 'scripto_admin_menu_settings' );
 add_action( 'admin_init', 'scripto_admin_init_settings' );
@@ -43,6 +44,38 @@ function scripto_activation() {
 		);
 		$page_id = wp_insert_post( $post );
 		update_option( 'scripto_page_id', $page_id );
+	}
+}
+
+/**
+ * Uninstall the plugin.
+ * 
+ * Deletes all Scripto-oriented data from the WordPress database, but does not 
+ * delete anything from the MediaWiki database. The plugin can be reactivated 
+ * using the same configuration.
+ */
+function scripto_uninstall() {
+	
+	// Delete the Scripto page.
+	wp_delete_post( get_option( 'scripto_page_id' ), true );
+	
+	// Delete the options.
+	$scripto_options = array(
+		'scripto_page_id', 
+		'scripto_settings', 
+	);
+	foreach ( $scripto_options as $scripto_option ) {
+		delete_option( $scripto_option );
+	}
+	
+	// Delete the attachment transcriptions.
+	$args = array(
+		'post_type'   => 'attachment', 
+		'numberposts' => -1, // get all attachment posts
+	);
+	$attachments = get_posts( $args );
+	foreach ( $attachments as $attachment ) {
+		delete_post_meta( $attachment->id, '_scripto_attachment_transcription' );
 	}
 }
 
