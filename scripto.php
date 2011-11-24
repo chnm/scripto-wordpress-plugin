@@ -14,6 +14,7 @@ register_activation_hook( __FILE__, 'scripto_activation' );
 add_action( 'admin_menu', 'scripto_admin_menu_settings' );
 add_action( 'admin_init', 'scripto_admin_init_settings' );
 
+add_filter( 'plugin_action_links', 'scripto_plugin_action_links_settings', 10, 2 );
 add_filter( 'attachment_fields_to_edit', 'scripto_attachment_fields_to_edit', 10, 2 );
 add_filter( 'attachment_fields_to_save', 'scripto_attachment_fields_to_save', 10, 2 );
 add_filter( 'the_content', 'scripto_the_content_document_page_list' );
@@ -81,6 +82,17 @@ function scripto_admin_init_settings() {
 		'scripto_settings_field_mediawiki_api_url', 
 		'scripto_settings_sections_page', 
 		'scripto_settings_section_configuration' );
+}
+
+/**
+ * Add a link to the Scripto settings page to the plugins browse page.
+ */
+function scripto_plugin_action_links_settings( $actions, $plugin_file ) {
+	if ( plugin_basename( __FILE__ ) == $plugin_file ) {
+		$settings_link = '<a href="options-general.php?page=scripto-settings">Settings</a>';
+		array_unshift( $actions, $settings_link );
+	}
+	return $actions;
 }
 
 /**
