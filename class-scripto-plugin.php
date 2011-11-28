@@ -7,12 +7,15 @@ class Scripto_Plugin
 {
 	/**
 	 * Activate the plugin.
+	 * 
+	 * Creates the Scripto page if not already created. All requests to the 
+	 * Scripto application are channeled through this page. If for any reason 
+	 * the page is deleted, the administrator needs only to deactivate and 
+	 * reactivate the plugin to reset the page.
 	 */
 	public static function activation() {
 		
-		// Create the Scripto page if not already created. If for any reason the 
-		// page is deleted, the administrator needs only to deactivate and 
-		// reactivate the plugin to reset the page.
+		// Create the Scripto page.
 		$page_id = get_option( 'scripto_page_id' );
 		$post = get_post( $page_id );
 		if ( ! $post ) {
@@ -33,9 +36,9 @@ class Scripto_Plugin
 	/**
 	 * Uninstall the plugin.
 	 * 
-	 * Deletes all Scripto-oriented data from the WordPress database, but does not 
-	 * delete anything from the MediaWiki database. The plugin can be reactivated 
-	 * using the same configuration.
+	 * Deletes all Scripto-oriented data from the WordPress database, but does 
+	 * not delete anything from the MediaWiki database. The plugin can be 
+	 * reactivated using the same configuration.
 	 */
 	public static function uninstall() {
 		
