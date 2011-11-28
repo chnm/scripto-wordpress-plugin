@@ -8,7 +8,7 @@ require_once 'Scripto/Adapter/Interface.php';
  * attachment, and a Scripto document page is a WordPress attachment post 
  * belonging to a parent post.
  */
-class ScriptoAdapterWordpress implements Scripto_Adapter_Interface {
+class Scripto_Adapter implements Scripto_Adapter_Interface {
 	
 	/**
 	 * Check the the post exists.
