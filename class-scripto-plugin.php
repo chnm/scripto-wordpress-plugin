@@ -16,7 +16,7 @@ class Scripto_Plugin
 	public static function activation() {
 		
 		// Create the Scripto page.
-		$page_id = get_option( 'scripto_page_id' );
+		$page_id = get_option( 'scripto_application_page_id' );
 		$post = get_post( $page_id );
 		if ( ! $post ) {
 			$post = array(
@@ -29,7 +29,7 @@ class Scripto_Plugin
 				'ping-status'    => 'closed', 
 			);
 			$page_id = wp_insert_post( $post );
-			update_option( 'scripto_page_id', $page_id );
+			update_option( 'scripto_application_page_id', $page_id );
 		}
 	}
 	
@@ -43,11 +43,11 @@ class Scripto_Plugin
 	public static function uninstall() {
 		
 		// Delete the Scripto page.
-		wp_delete_post( get_option( 'scripto_page_id' ), true );
+		wp_delete_post( get_option( 'scripto_application_page_id' ), true );
 		
 		// Delete the options.
 		$scripto_options = array(
-			'scripto_page_id', 
+			'scripto_application_page_id', 
 			'scripto_settings', 
 		);
 		foreach ( $scripto_options as $scripto_option ) {
@@ -248,8 +248,9 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 		// and "scripto_doc_id" is the current post's ID. "p=?" always redirects to 
 		// the associated permalink, if any.
 		$params = array(
-			'p' => get_option( 'scripto_page_id' ), 
-			'scripto_doc_id' => get_the_ID(), 
+			'p'                => get_option( 'scripto_application_page_id' ), 
+			'scripto_app_page' => 'transcribe', 
+			'scripto_doc_id'   => get_the_ID(), 
 		);
 		
 		// Append the document page list to the content.
