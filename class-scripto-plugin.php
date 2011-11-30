@@ -23,7 +23,7 @@ class Scripto_Plugin
 				'post_type'      => 'page', 
 				'post_status'    => 'publish', 
 				'post_title'     => 'Scripto', 
-				'post_content'   => '[scripto]', 
+				'post_content'   => '[scripto_application]', 
 				'post_name'      => 'scripto', 
 				'comment_status' => 'closed', 
 				'ping-status'    => 'closed', 
@@ -101,6 +101,35 @@ class Scripto_Plugin
 			'Scripto_Plugin::settings_field_mediawiki_api_url', 
 			'scripto_settings_sections_page', 
 			'scripto_settings_section_configuration' );
+	}
+	
+	/**
+	 * Load the Scripto application.
+	 * 
+	 * Loading the application at this early stage is necessary because Scripto 
+	 * may need to set cookies and redirect the page before output is sent to 
+	 * the browser.
+	 */
+	public static function set_scripto_application() {
+		
+		// Return if not on the Scripto application page.
+		if ( ! is_page( get_option( 'scripto_application_page_id' ) ) ) {
+			return;
+		}
+		
+		// Load the Scripto application environment.
+		set_include_path(get_include_path() 
+			. PATH_SEPARATOR . self::get_setting( 'zend_framework_path' ) 
+			. PATH_SEPARATOR . self::get_scripto_path() );
+		
+		require_once 'Scripto.php';
+		require_once 'class-scripto-adapter.php';
+		require_once 'class-scripto-application.php';
+		
+		$scripto = new Scripto( new Scripto_Adapter, 
+			array('api_url' => self::get_setting( 'mediawiki_api_url' )));
+		$scripto_application = Scripto_Application::get_instance( $scripto );
+		$scripto_application->run_action( $_GET['scripto_action'] );
 	}
 	
 	/**
@@ -248,23 +277,23 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 		// and "scripto_doc_id" is the current post's ID. "p=?" always redirects to 
 		// the associated permalink, if any.
 		$params = array(
-			'p'                => get_option( 'scripto_application_page_id' ), 
-			'scripto_app_page' => 'transcribe', 
-			'scripto_doc_id'   => get_the_ID(), 
+			'p'              => get_option( 'scripto_application_page_id' ), 
+			'scripto_action' => 'transcribe', 
+			'scripto_doc_id' => get_the_ID(), 
 		);
 		
 		// Append the document page list to the content.
 		ob_start();
 ?>
-	<?php if ($attachments): ?>
+<?php if ($attachments): ?>
 <h3>Transcribe</h3>
 <ol>
 	<?php foreach ( $attachments as $attachment ): ?>
 	<?php $params['scripto_doc_page_id'] = $attachment->ID; ?>
-	<li><a href="<?php echo home_url( '?' . http_build_query( $params ) ); ?>"><?php echo $attachment->post_title; ?></a></li>
+	<li><a href="<?php echo site_url( '?' . http_build_query( $params ) ); ?>"><?php echo $attachment->post_title; ?></a></li>
 	<?php endforeach; ?>
 </ol>
-	<?php endif; ?>
+<?php endif; ?>
 <?php
 		$content .= ob_get_contents();
 		ob_end_clean();
@@ -275,35 +304,9 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	/**
 	 * Display the Scripto application.
 	 */
-	public static function scripto( $atts, $content, $code ) {
-		
-		// Check for required parameters.
-		if ( ! isset($_GET['scripto_doc_id']) || ! isset($_GET['scripto_doc_page_id']) ) {
-			return;
-		}
-		
-		try {
-			// Load the Scripto document and page.
-			$scripto = self::get_scripto();
-			$doc = $scripto->getDocument($_GET['scripto_doc_id']);
-			$doc->setPage($_GET['scripto_doc_page_id']);
-			
-			// Save the transcription.
-			if (isset($_POST['scripto_transcripton'])) {
-				$doc->editTranscriptionPage($_POST['scripto_transcripton']);
-			}
-			
-		} catch (Scripto_Exception $e) {
-			return '<p>' . $e->getMessage() . '</p>';
-		}
-		
-?>
-<form action="<?php  ?>" method="post">
-	<div><img src="<?php echo $doc->getPageFileUrl(); ?>" /></div>
-	<textarea name="scripto_transcripton" cols="45" rows="12"><?php echo $doc->getTranscriptionPageWikitext(); ?></textarea>
-	<input type="submit" name="scripto_submit_transcription" value="Save Transcription" />
-</form>
-<?php
+	public static function scripto_application( $atts, $content, $code ) {
+		$scripto_application = Scripto_Application::get_instance();
+		echo $scripto_application->get_content();
 	}
 	
 	/**
@@ -320,25 +323,6 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 			return $default;
 		}
 		return $options[$name];
-	}
-	
-	/**
-	 * Load the Scripto environment and return a Scripto object.
-	 * 
-	 * @return Scripto
-	 */
-	public static function get_scripto() {
-		
-		set_include_path(get_include_path() 
-			. PATH_SEPARATOR . self::get_setting( 'zend_framework_path' ) 
-			. PATH_SEPARATOR . self::get_scripto_path() );
-		
-		require_once 'Scripto.php';
-		require_once 'class-scripto-adapter.php';
-		$scripto = new Scripto( new Scripto_Adapter, 
-			array('api_url' => self::get_setting( 'mediawiki_api_url' )));
-		
-		return $scripto;
 	}
 	
 	/**

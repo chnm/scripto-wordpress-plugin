@@ -30,13 +30,14 @@ register_uninstall_hook( __FILE__, 'Scripto_Plugin::uninstall' );
 
 add_action( 'admin_menu', 'Scripto_Plugin::admin_menu_settings' );
 add_action( 'admin_init', 'Scripto_Plugin::admin_init_settings' );
+add_action( 'wp', 'Scripto_Plugin::set_scripto_application' );
 
 add_filter( 'plugin_action_links', 'Scripto_Plugin::plugin_action_links_settings', 10, 2 );
 add_filter( 'attachment_fields_to_edit', 'Scripto_Plugin::attachment_fields_to_edit', 10, 2 );
 add_filter( 'attachment_fields_to_save', 'Scripto_Plugin::attachment_fields_to_save', 10, 2 );
 add_filter( 'the_content', 'Scripto_Plugin::the_content_document_page_list' );
 
-add_shortcode( 'scripto', 'Scripto_Plugin::scripto' );
+add_shortcode( 'scripto_application', 'Scripto_Plugin::scripto_application' );
 
 /**
  * Debug a variable in the browser.
