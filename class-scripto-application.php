@@ -12,9 +12,14 @@ class Scripto_Application
 	protected $_scripto;
 	
 	/**
+	 * @var The post ID 
+	 */
+	protected $_application_page_id;
+	
+	/**
 	 * @var The content of the current page.
 	 */
-	protected $_content;
+	protected $_content = '';
 	
 	/**
 	 * @var MIME types compatible with Zoom.it.
@@ -103,6 +108,7 @@ class Scripto_Application
 	 */
 	protected function __construct( Scripto $scripto ) {
 		$this->_scripto = $scripto;
+		$this->_application_page_id = get_option( 'scripto_application_page_id' );
 	}
 	
 	/**
@@ -118,9 +124,53 @@ class Scripto_Application
 	}
 	
 	/**
+	 * The index (default) action.
+	 */
+	public function index_action() {
+		$_user_document_pages = $this->_scripto->getUserDocumentPages( 50 );
+		
+		$i = 0;
+		$user_document_pages = array();
+		foreach ( $_user_document_pages as $user_document_page) {
+			// "Document Page Name" column.
+			if ( 1 == $user_document_page['namespace_index'] ) {
+				$scripto_action = 'discuss';
+				$page_name = 'Talk: ' . $user_document_page['document_page_name'];
+			} else {
+				$scripto_action = 'transcribe';
+				$page_name = $user_document_page['document_page_name'];
+			}
+			$params = array(
+				'scripto_doc_id'      => $user_document_page['document_id'], 
+				'scripto_doc_page_id' => $user_document_page['document_page_id']
+			);
+			$url_transcribe = $this->scripto_url( $scripto_action, $params );
+			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
+			$user_document_pages[$i]['document_page_name'] = $document_page_name;
+			
+			// "Most Recent Contribution"
+			$user_document_pages[$i]['most_recent_contribution'] = gmdate('H:i:s M d, Y', strtotime($user_document_page['timestamp']));
+			
+			// "Document Title" column.
+			$url_post = site_url( '?p=' . $user_document_page['document_id'] );
+			$document_title = '<a href="' . $url_post . '">' . $user_document_page['document_title'] . '</a>';
+			$user_document_pages[$i]['document_title'] = $document_title;
+		}
+		
+		$this->append_content( 'navigation' );
+		if ( $this->_scripto->isLoggedIn() ) {
+			$this->append_content( 'user_document_pages', compact( 'user_document_pages' ) );
+		} else {
+			$vars = array(
+				'login_url' => $this->scripto_url( 'login' ), 
+				'recent_changes_url' => $this->scripto_url( 'recent_changes' ), 
+			);
+			$this->append_content( 'index', $vars );
+		}
+	}
+	
+	/**
 	 * The transcribe page.
-	 * 
-	 * @return string
 	 */
 	public function transcribe_action() {
 		
@@ -132,35 +182,64 @@ class Scripto_Application
 		}
 		
 		$media_viewer = $this->get_media_viewer( $_GET['scripto_doc_page_id'] );
-		
-		$vars = array(
-			'media_viewer' => $media_viewer, 
-			'scripto' => $this->_scripto, 
-			'doc' => $doc, 
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+			'scripto_ns_index'    => '0', 
 		);
-		return $this->_set_content( 'transcribe', $vars);
+		$transcription_page_url = $this->scripto_url( 'page_history', $params );
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+			'scripto_ns_index'    => '1', 
+		);
+		$talk_page_url = $this->scripto_url( 'page_history', $params );
+		
+		$this->append_content( 'navigation' );
+		$this->append_content( 'transcribe', compact( 'media_viewer', 'doc', 'transcription_page_url', 'talk_page_url' ) );
 	}
 	
 	/**
 	 * The transcription page history page.
-	 * 
-	 * @return string
 	 */
-	public function transcription_page_history_action() {
+	public function page_history_action() {
 		
 		$doc = $this->get_document_page();
-		$this->_set_content( 'transcription-page-history', compact( 'doc' ) );
+		
+		if ( '1' == $_GET['scripto_ns_index'] ) {
+			$_page_history = $doc->getTalkPageHistory();
+		} else {
+			$_page_history = $doc->getTranscriptionPageHistory();
+		}
+		
+		$i = 0;
+		$page_history = array();
+		foreach ( $_page_history as $revision ) {
+			// "Changed on" column.
+			$page_history[$i]['changed_on'] = date( 'H:i:s M d, Y', strtotime( $revision['timestamp'] ) );
+			
+			// "Changed by" column.
+			$page_history[$i]['changed_by'] = $revision['user'];
+			
+			// "Size (bytes)" column.
+			$page_history[$i]['size'] = $revision['size'];
+			
+			// "Action" column.
+			$page_history[$i]['action'] = ucfirst($revision['action']);
+			
+			$i++;
+		}
+		
+		$this->append_content( 'navigation' );
+		$this->append_content( 'page-history', compact( 'page_history' ) );
 	}
 	
 	/**
 	 * The recent changes page.
-	 * 
-	 * @return string
 	 */
 	public function recent_changes_action() {
 		
 		$_recent_changes = $this->_scripto->getRecentChanges( 100 );
-		$application_page_id = get_option( 'scripto_application_page_id' );
 		
 		$i = 0;
 		$recent_changes = array();
@@ -168,24 +247,20 @@ class Scripto_Application
 			// "Changes" column.
 			$changes = ucfirst($recent_change['action']);
 			if ( ! in_array( $recent_change['action'], array('Protected', 'Unprotected') ) ) {
-				$url_diff_params = array(
-					'p'                   => $application_page_id, 
-					'scripto_action'      => 'diff', 
+				$params = array(
 					'scripto_doc_id'      => $recent_change['document_id'], 
 					'scripto_doc_page_id' => $recent_change['document_page_id'], 
 					'scripto_ns_index'    => $recent_change['namespace_index'], 
 					'scripto_old_rev_id'  => $recent_change['old_revision_id'], 
 					'scripto_rev_id'      => $recent_change['revision_id'], 
 				);
-				$url_diff = site_url( '?' . http_build_query( $url_diff_params ) );
-				$url_history_params = array(
-					'p'                   => $application_page_id, 
-					'scripto_action'      => 'history', 
+				$url_diff = $this->scripto_url( 'diff', $params );
+				$params = array(
 					'scripto_doc_id'      => $recent_change['document_id'], 
 					'scripto_doc_page_id' => $recent_change['document_page_id'], 
 					'scripto_ns_index'    => $recent_change['namespace_index'], 
 				);
-				$url_history = site_url( '?' . http_build_query( $url_history_params ) );
+				$url_history = $this->scripto_url( 'page_history', $params );
 				if ($recent_change['new']) {
 					$changes .= ' (diff | <a href="' . $url_diff . '">hist</a>)';
 				} else {
@@ -202,13 +277,11 @@ class Scripto_Application
 				$scripto_action = 'transcribe';
 				$page_name = $recent_change['document_page_name'];
 			}
-			$url_transcribe_params = array(
-				'p'                   => $application_page_id, 
-				'scripto_action'      => $scripto_action, 
+			$params = array(
 				'scripto_doc_id'      => $recent_change['document_id'], 
 				'scripto_doc_page_id' => $recent_change['document_page_id']
 			);
-			$url_transcribe = site_url( '?' . http_build_query( $url_transcribe_params ) );
+			$url_transcribe = $this->scripto_url( $scripto_action, $params );
 			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
 			$recent_changes[$i]['document_page_name'] = $document_page_name;
 			
@@ -226,29 +299,25 @@ class Scripto_Application
 			$recent_changes[$i]['user'] = $recent_change['user'];
 			
 			// "Document Title" column.
-			$url_post = site_url( '?' . array('p' => $recent_change['document_id']) );
+			$url_post = site_url( '?p=' . $recent_change['document_id'] );
 			$document_title = '<a href="' . $url_post . '">' . $recent_change['document_title'] . '</a>';
 			$recent_changes[$i]['document_title'] = $document_title;
 			
 			$i++;
 		}
 		
-		$this->_set_content( 'recent-changes', compact( 'recent_changes' ) );
+		$this->append_content( 'navigation' );
+		$this->append_content( 'recent-changes', compact( 'recent_changes' ) );
 	}
 	
 	/**
 	 * The login action.
-	 * 
-	 * @return string.
 	 */
 	public function login_action() {
 		
-		$url_redirect_params = array(
-			'p'              => get_option( 'scripto_application_page_id' ), 
-			'scripto_action' => 'recent_changes', 
-		);
 		if ($this->_scripto->isLoggedIn()) {
-			wp_redirect( site_url( '?' . http_build_query( $url_redirect_params ) ) );
+			wp_redirect( $this->scripto_url( 'recent_changes' ) );
+			exit;
 		}
 		
 		$error = false;
@@ -257,13 +326,24 @@ class Scripto_Application
 		if ( isset($_POST['scripto_username']) && isset($_POST['scripto_password']) ) {
 			try {
 				$this->_scripto->login( $_POST['scripto_username'], $_POST['scripto_password'] );
-				wp_redirect( site_url( '?' . http_build_query( $url_redirect_params ) ) );
+				wp_redirect( $this->scripto_url( 'index' ) );
+				exit;
 			} catch ( Scripto_Service_Exception $e ) {
 				$error = $e->getMessage();
 			}
 		}
 		
-		$this->_set_content( 'login', compact( 'error' ) );
+		$this->append_content( 'navigation' );
+		$this->append_content( 'login', compact( 'error' ) );
+	}
+	
+	/**
+	 * The logout action.
+	 */
+	public function logout_action() {
+		$this->_scripto->logout();
+		wp_redirect( $this->scripto_url( 'index' ) );
+		exit;
 	}
 	
 	/**
@@ -314,6 +394,20 @@ class Scripto_Application
 	}
 	
 	/**
+	 * Build a URL to the Scripto application.
+	 * 
+	 * @param string $action_name
+	 * @param array $params
+	 * @return string
+	 */
+	public function scripto_url( $action_name, $params = array() ) {
+		$params['p'] = $this->_application_page_id;
+		$params['scripto_action'] = $action_name;
+		$url = site_url( '?' . http_build_query( $params ) );
+		return $url;
+	}
+	
+	/**
 	 * Run the specified action.
 	 * 
 	 * The passed action name must correspond to a method in this class, 
@@ -344,9 +438,9 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Get the specified template.
+	 * Get the specified template and append the result to the cached content.
 	 * 
-	 * Used in methods ending with "_action" to get the content of a page. This 
+	 * Used in methods ending with "_action" to set the content of a page. This 
 	 * separates business logic from the HTML template, simulating the MVC 
 	 * pattern. Template files exist in the templates/ directory.
 	 * 
@@ -354,7 +448,7 @@ class Scripto_Application
 	 * @param array $vars
 	 * @return string
 	 */
-	protected function _set_content( $template_name, $vars = array() ) {
+	public function append_content( $template_name, $vars = array() ) {
 		
 		// Import passed variables into the current scope.
 		extract( $vars );
@@ -362,7 +456,7 @@ class Scripto_Application
 		// Output buffer and include the template, then set the content.
 		ob_start();
 		include "templates/$template_name.php";
-		$this->_content = ob_get_contents();
+		$this->_content .= ob_get_contents();
 		ob_end_clean();
 	}
 }

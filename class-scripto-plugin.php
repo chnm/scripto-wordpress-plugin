@@ -129,6 +129,12 @@ class Scripto_Plugin
 		$scripto = new Scripto( new Scripto_Adapter, 
 			array('api_url' => self::get_setting( 'mediawiki_api_url' )));
 		$scripto_application = Scripto_Application::get_instance( $scripto );
+		
+		// Set the default action.
+		if ( ! isset( $_GET['scripto_action'] ) ) {
+			$_GET['scripto_action'] = 'index';
+		}
+		
 		$scripto_application->run_action( $_GET['scripto_action'] );
 	}
 	
