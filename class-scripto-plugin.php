@@ -130,12 +130,11 @@ class Scripto_Plugin
 			array('api_url' => self::get_setting( 'mediawiki_api_url' )));
 		$scripto_application = Scripto_Application::get_instance( $scripto );
 		
-		// Set the default action.
-		if ( ! isset( $_GET['scripto_action'] ) ) {
-			$_GET['scripto_action'] = 'index';
+		// Set the page and dispatch it.
+		if ( ! isset( $_GET['scripto_page'] ) ) {
+			$_GET['scripto_page'] = 'index';
 		}
-		
-		$scripto_application->run_action( $_GET['scripto_action'] );
+		$scripto_application->dispatch( $_GET['scripto_page'] );
 	}
 	
 	/**
@@ -284,7 +283,7 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 		// the associated permalink, if any.
 		$params = array(
 			'p'              => get_option( 'scripto_application_page_id' ), 
-			'scripto_action' => 'transcribe', 
+			'scripto_page' => 'transcribe', 
 			'scripto_doc_id' => get_the_ID(), 
 		);
 		

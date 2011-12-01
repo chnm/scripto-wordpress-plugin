@@ -4,6 +4,9 @@
  */
 class Scripto_Application
 {
+	/**
+	 * @var The instance of this class.
+	 */
 	protected static $_instance;
 	
 	/**
@@ -12,12 +15,12 @@ class Scripto_Application
 	protected $_scripto;
 	
 	/**
-	 * @var The post ID 
+	 * @var The post ID of the Scripto application page.
 	 */
 	protected $_application_page_id;
 	
 	/**
-	 * @var The content of the current page.
+	 * @var The cached content of the current application page.
 	 */
 	protected $_content = '';
 	
@@ -103,7 +106,7 @@ class Scripto_Application
 	 * 
 	 * Instantiate using self::get_instance().
 	 * 
-	 * @param Scripto $scripto The Scripto object.
+	 * @param Scripto $scripto
 	 * @return string
 	 */
 	protected function __construct( Scripto $scripto ) {
@@ -114,7 +117,10 @@ class Scripto_Application
 	/**
 	 * Scripto application singleton.
 	 * 
+	 * Must pass the Scripto object on the first instantiation.
+	 * 
 	 * @param Scripto|null $scripto
+	 * @return Scripto
 	 */
 	public static function get_instance( $scripto = null ) {
 		if ( null == self::$_instance ) {
@@ -124,9 +130,9 @@ class Scripto_Application
 	}
 	
 	/**
-	 * The index (default) action.
+	 * The index (default) page.
 	 */
-	public function index_action() {
+	public function index_page() {
 		$_user_document_pages = $this->_scripto->getUserDocumentPages( 50 );
 		
 		$i = 0;
@@ -134,17 +140,17 @@ class Scripto_Application
 		foreach ( $_user_document_pages as $user_document_page) {
 			// "Document Page Name" column.
 			if ( 1 == $user_document_page['namespace_index'] ) {
-				$scripto_action = 'discuss';
+				$scripto_page = 'talk';
 				$page_name = 'Talk: ' . $user_document_page['document_page_name'];
 			} else {
-				$scripto_action = 'transcribe';
+				$scripto_page = 'transcribe';
 				$page_name = $user_document_page['document_page_name'];
 			}
 			$params = array(
 				'scripto_doc_id'      => $user_document_page['document_id'], 
 				'scripto_doc_page_id' => $user_document_page['document_page_id']
 			);
-			$url_transcribe = $this->scripto_url( $scripto_action, $params );
+			$url_transcribe = $this->scripto_url( $scripto_page, $params );
 			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
 			$user_document_pages[$i]['document_page_name'] = $document_page_name;
 			
@@ -157,22 +163,22 @@ class Scripto_Application
 			$user_document_pages[$i]['document_title'] = $document_title;
 		}
 		
-		$this->append_content( 'navigation' );
+		$this->_append_content( 'navigation' );
 		if ( $this->_scripto->isLoggedIn() ) {
-			$this->append_content( 'user_document_pages', compact( 'user_document_pages' ) );
+			$this->_append_content( 'user_document_pages', compact( 'user_document_pages' ) );
 		} else {
 			$vars = array(
 				'login_url' => $this->scripto_url( 'login' ), 
 				'recent_changes_url' => $this->scripto_url( 'recent_changes' ), 
 			);
-			$this->append_content( 'index', $vars );
+			$this->_append_content( 'index', $vars );
 		}
 	}
 	
 	/**
 	 * The transcribe page.
 	 */
-	public function transcribe_action() {
+	public function transcribe_page() {
 		
 		$doc = $this->get_document_page();
 		
@@ -195,14 +201,14 @@ class Scripto_Application
 		);
 		$talk_page_url = $this->scripto_url( 'page_history', $params );
 		
-		$this->append_content( 'navigation' );
-		$this->append_content( 'transcribe', compact( 'media_viewer', 'doc', 'transcription_page_url', 'talk_page_url' ) );
+		$this->_append_content( 'navigation' );
+		$this->_append_content( 'transcribe', compact( 'media_viewer', 'doc', 'transcription_page_url', 'talk_page_url' ) );
 	}
 	
 	/**
 	 * The transcription page history page.
 	 */
-	public function page_history_action() {
+	public function page_history_page() {
 		
 		$doc = $this->get_document_page();
 		
@@ -230,14 +236,14 @@ class Scripto_Application
 			$i++;
 		}
 		
-		$this->append_content( 'navigation' );
-		$this->append_content( 'page-history', compact( 'page_history' ) );
+		$this->_append_content( 'navigation' );
+		$this->_append_content( 'page-history', compact( 'page_history' ) );
 	}
 	
 	/**
 	 * The recent changes page.
 	 */
-	public function recent_changes_action() {
+	public function recent_changes_page() {
 		
 		$_recent_changes = $this->_scripto->getRecentChanges( 100 );
 		
@@ -271,17 +277,17 @@ class Scripto_Application
 			
 			// "Document Page Name" column.
 			if ( 1 == $recent_change['namespace_index'] ) {
-				$scripto_action = 'discuss';
+				$scripto_page = 'talk';
 				$page_name = 'Talk: ' . $recent_change['document_page_name'];
 			} else {
-				$scripto_action = 'transcribe';
+				$scripto_page = 'transcribe';
 				$page_name = $recent_change['document_page_name'];
 			}
 			$params = array(
 				'scripto_doc_id'      => $recent_change['document_id'], 
 				'scripto_doc_page_id' => $recent_change['document_page_id']
 			);
-			$url_transcribe = $this->scripto_url( $scripto_action, $params );
+			$url_transcribe = $this->scripto_url( $scripto_page, $params );
 			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
 			$recent_changes[$i]['document_page_name'] = $document_page_name;
 			
@@ -306,14 +312,16 @@ class Scripto_Application
 			$i++;
 		}
 		
-		$this->append_content( 'navigation' );
-		$this->append_content( 'recent-changes', compact( 'recent_changes' ) );
+		$this->_append_content( 'navigation' );
+		$this->_append_content( 'recent-changes', compact( 'recent_changes' ) );
 	}
 	
 	/**
-	 * The login action.
+	 * The login page.
+	 * 
+	 * @throws Scripto_Exception
 	 */
-	public function login_action() {
+	public function login_page() {
 		
 		if ($this->_scripto->isLoggedIn()) {
 			wp_redirect( $this->scripto_url( 'recent_changes' ) );
@@ -333,14 +341,14 @@ class Scripto_Application
 			}
 		}
 		
-		$this->append_content( 'navigation' );
-		$this->append_content( 'login', compact( 'error' ) );
+		$this->_append_content( 'navigation' );
+		$this->_append_content( 'login', compact( 'error' ) );
 	}
 	
 	/**
-	 * The logout action.
+	 * The logout page.
 	 */
-	public function logout_action() {
+	public function logout_page() {
 		$this->_scripto->logout();
 		wp_redirect( $this->scripto_url( 'index' ) );
 		exit;
@@ -379,11 +387,16 @@ class Scripto_Application
 		return $media_viewer;
 	}
 	
+	/**
+	 * Get the document page via URL parameters.
+	 * 
+	 * @throws Scripto_Exception
+	 * @return Scripto_Document
+	 */
 	public function get_document_page() {
 		
-		// Check for required parameters.
-		if ( ! isset( $_GET['scripto_doc_id'] ) || ! isset( $_GET['scripto_doc_page_id'] ) ) {
-			throw new Scripto_Exception( 'Missing required parameters.' );
+		if ( ! isset( $_GET['scripto_doc_id'], $_GET['scripto_doc_page_id'] ) ) {
+			throw new Scripto_Exception( 'Missing document ID and/or document page ID.' );
 		}
 		
 		// Load the Scripto document and page.
@@ -396,33 +409,37 @@ class Scripto_Application
 	/**
 	 * Build a URL to the Scripto application.
 	 * 
-	 * @param string $action_name
+	 * @param string $page_name
 	 * @param array $params
 	 * @return string
 	 */
-	public function scripto_url( $action_name, $params = array() ) {
-		$params['p'] = $this->_application_page_id;
-		$params['scripto_action'] = $action_name;
+	public function scripto_url( $page_name, $params = array() ) {
+		$page_params = array(
+			'p' => $this->_application_page_id, 
+			'scripto_page' => $page_name, 
+		);
+		$params = $page_params + $params;
 		$url = site_url( '?' . http_build_query( $params ) );
 		return $url;
 	}
 	
 	/**
-	 * Run the specified action.
+	 * Dispatch the specified page.
 	 * 
-	 * The passed action name must correspond to a method in this class, 
-	 * suffixed with "_action". Must be called before output is sent ot the 
+	 * The passed page name must correspond to a method in this class, 
+	 * suffixed with "_page". Must be called before output is sent ot the 
 	 * browser.
 	 * 
-	 * @param string $action_name
+	 * @throws Scripto_Exception
+	 * @param string $page_name
 	 * @return string
 	 */
-	public function run_action( $action_name ) {
-		$action_method = $action_name . '_action';
-		if ( ! method_exists( $this, $action_method ) ) {
-			throw new Scripto_Exception( 'The Scripto application action does not exist.' );
+	public function dispatch( $page_name ) {
+		$page_method = $page_name . '_page';
+		if ( ! method_exists( $this, $page_method ) ) {
+			throw new Scripto_Exception( 'The Scripto application page does not exist.' );
 		}
-		$this->$action_method();
+		$this->$page_method();
 	}
 	
 	/**
@@ -440,7 +457,7 @@ class Scripto_Application
 	/**
 	 * Get the specified template and append the result to the cached content.
 	 * 
-	 * Used in methods ending with "_action" to set the content of a page. This 
+	 * Used in methods ending with "_page" to set the content of a page. This 
 	 * separates business logic from the HTML template, simulating the MVC 
 	 * pattern. Template files exist in the templates/ directory.
 	 * 
@@ -448,7 +465,7 @@ class Scripto_Application
 	 * @param array $vars
 	 * @return string
 	 */
-	public function append_content( $template_name, $vars = array() ) {
+	protected function _append_content( $template_name, $vars = array() ) {
 		
 		// Import passed variables into the current scope.
 		extract( $vars );
