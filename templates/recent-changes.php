@@ -1,3 +1,4 @@
+<h2>Recent Changes to Scripto</h2>
 <table>
 	<thead>
 	<tr>

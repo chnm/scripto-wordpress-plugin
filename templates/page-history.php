@@ -1,3 +1,4 @@
+<h2>Page History for <?php echo $doc->getPageName(); ?></h2>
 <table>
 	<thead>
 	<tr>

@@ -193,16 +193,18 @@ class Scripto_Application
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
 			'scripto_ns_index'    => '0', 
 		);
-		$transcription_page_url = $this->scripto_url( 'page_history', $params );
+		$transcription_history_url = $this->scripto_url( 'page_history', $params );
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
-			'scripto_ns_index'    => '1', 
 		);
-		$talk_page_url = $this->scripto_url( 'page_history', $params );
+		$talk_url = $this->scripto_url( 'talk', $params );
 		
 		$this->_append_content( 'navigation' );
-		$this->_append_content( 'transcribe', compact( 'media_viewer', 'doc', 'transcription_page_url', 'talk_page_url' ) );
+		$this->_append_content( 'transcribe', compact( 'media_viewer', 
+			'doc', 
+			'transcription_history_url', 
+			'talk_url' ) );
 	}
 	
 	/**
@@ -237,7 +239,7 @@ class Scripto_Application
 		}
 		
 		$this->_append_content( 'navigation' );
-		$this->_append_content( 'page-history', compact( 'page_history' ) );
+		$this->_append_content( 'page-history', compact( 'page_history', 'doc' ) );
 	}
 	
 	/**
