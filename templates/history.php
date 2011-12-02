@@ -2,6 +2,7 @@
 <table>
 	<thead>
 	<tr>
+		<th>Compare Changes</th>
 		<th>Changed on</th>
 		<th>Changed by</th>
 		<th>Size (bytes)</th>
@@ -9,8 +10,9 @@
 	</tr>
 	</thead>
 	<tbody>
-	<?php foreach ( $page_history as $revision ): ?>
+	<?php foreach ( $history as $revision ): ?>
 	<tr>
+		<td><?php echo $revision['compare_changes']; ?></td>
 		<td><?php echo $revision['changed_on']; ?></td>
 		<td><?php echo $revision['changed_by']; ?></td>
 		<td><?php echo $revision['size']; ?></td>

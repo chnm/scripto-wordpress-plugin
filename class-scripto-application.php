@@ -193,7 +193,7 @@ class Scripto_Application
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
 			'scripto_ns_index'    => '0', 
 		);
-		$transcription_history_url = $this->scripto_url( 'page_history', $params );
+		$transcription_history_url = $this->scripto_url( 'history', $params );
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
@@ -208,38 +208,81 @@ class Scripto_Application
 	}
 	
 	/**
-	 * The transcription page history page.
+	 * The history page.
 	 */
-	public function page_history_page() {
+	public function history_page() {
+		
+		// Set the default namespace index.
+		$_GET = wp_parse_args( $_GET, array('scripto_ns_index' => '0') );
 		
 		$doc = $this->get_document_page();
 		
 		if ( '1' == $_GET['scripto_ns_index'] ) {
-			$_page_history = $doc->getTalkPageHistory();
+			$info = $doc->getTalkPageInfo();
+			$_history = $doc->getTalkPageHistory();
 		} else {
-			$_page_history = $doc->getTranscriptionPageHistory();
+			$info = $doc->getTranscriptionPageInfo();
+			$_history = $doc->getTranscriptionPageHistory();
 		}
 		
 		$i = 0;
-		$page_history = array();
-		foreach ( $_page_history as $revision ) {
+		$history = array();
+		foreach ( $_history as $revision ) {
+			
+			// "Compare Changes" column.
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_old_rev_id'  => $revision['parent_id'], 
+				'scripto_rev_id'      => $info['last_revision_id'], 
+			);
+			$url_current = $this->scripto_url( 'diff', $params );
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_old_rev_id'  => $revision['parent_id'], 
+				'scripto_rev_id'      => $revision['revision_id'], 
+			);
+			$url_previous = $this->scripto_url( 'diff', $params );
+			if ( $revision['revision_id'] != $info['last_revision_id'] ) {
+				$current = '<a href="' . $url_current . '">current</a>';
+			} else {
+				$current = 'current';
+			}
+			if ( 0 != $revision['parent_id'] ) {
+				$previous = '<a href="' . $url_previous . '">previous</a>';
+			} else {
+				$previous = 'previous';
+			}
+			$history[$i]['compare_changes'] = "($current | $previous)";
+			
 			// "Changed on" column.
-			$page_history[$i]['changed_on'] = date( 'H:i:s M d, Y', strtotime( $revision['timestamp'] ) );
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_rev_id'      => $revision['revision_id'], 
+			);
+			$url_revision = $this->scripto_url( 'revision', $params );
+			$changed_on = '<a href="' . $url_revision . '">' . date( 'H:i:s M d, Y', strtotime( $revision['timestamp'] ) ) . '</a>';
+			$history[$i]['changed_on'] = $changed_on;
 			
 			// "Changed by" column.
-			$page_history[$i]['changed_by'] = $revision['user'];
+			$history[$i]['changed_by'] = $revision['user'];
 			
 			// "Size (bytes)" column.
-			$page_history[$i]['size'] = $revision['size'];
+			$history[$i]['size'] = $revision['size'];
 			
 			// "Action" column.
-			$page_history[$i]['action'] = ucfirst($revision['action']);
+			$history[$i]['action'] = ucfirst($revision['action']);
 			
 			$i++;
 		}
 		
 		$this->_append_content( 'navigation' );
-		$this->_append_content( 'page-history', compact( 'page_history', 'doc' ) );
+		$this->_append_content( 'history', compact( 'history', 'doc' ) );
 	}
 	
 	/**
@@ -268,7 +311,7 @@ class Scripto_Application
 					'scripto_doc_page_id' => $recent_change['document_page_id'], 
 					'scripto_ns_index'    => $recent_change['namespace_index'], 
 				);
-				$url_history = $this->scripto_url( 'page_history', $params );
+				$url_history = $this->scripto_url( 'history', $params );
 				if ($recent_change['new']) {
 					$changes .= ' (diff | <a href="' . $url_diff . '">hist</a>)';
 				} else {
