@@ -25,6 +25,11 @@ class Scripto_Application
 	protected $_content = '';
 	
 	/**
+	 * @var The message, if any, to display on the page.
+	 */
+	protected $_message = '';
+	
+	/**
 	 * @var MIME types compatible with Zoom.it.
 	 */
 	protected $_mime_types_zoom_it = array(
@@ -373,8 +378,6 @@ class Scripto_Application
 			exit;
 		}
 		
-		$error = false;
-		
 		// Handle the login form.
 		if ( isset($_POST['scripto_username']) && isset($_POST['scripto_password']) ) {
 			try {
@@ -382,7 +385,7 @@ class Scripto_Application
 				wp_redirect( $this->scripto_url( 'index' ) );
 				exit;
 			} catch ( Scripto_Service_Exception $e ) {
-				$error = $e->getMessage();
+				$this->_message = $e->getMessage();
 			}
 		}
 		
@@ -397,6 +400,11 @@ class Scripto_Application
 		$this->_scripto->logout();
 		wp_redirect( $this->scripto_url( 'index' ) );
 		exit;
+	}
+	
+	public function error_page() {
+		$this->_append_content( 'navigation' );
+		$this->_append_content( 'error' );
 	}
 	
 	/**
@@ -482,9 +490,18 @@ class Scripto_Application
 	public function dispatch( $page_name ) {
 		$page_method = $page_name . '_page';
 		if ( ! method_exists( $this, $page_method ) ) {
-			throw new Scripto_Exception( 'The Scripto application page does not exist.' );
+			throw new Scripto_Exception( "The Scripto application page \"$page_name\" does not exist." );
 		}
 		$this->$page_method();
+	}
+	
+	/**
+	 * Set a message to be shown in the message template.
+	 * 
+	 * @param string $message
+	 */
+	public function set_message( $message ) {
+		$this->_message = $message;
 	}
 	
 	/**

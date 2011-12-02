@@ -126,15 +126,21 @@ class Scripto_Plugin
 		require_once 'class-scripto-adapter.php';
 		require_once 'class-scripto-application.php';
 		
-		$scripto = new Scripto( new Scripto_Adapter, 
-			array('api_url' => self::get_setting( 'mediawiki_api_url' )));
-		$scripto_application = Scripto_Application::get_instance( $scripto );
+		try {
+			$scripto = new Scripto( new Scripto_Adapter, 
+				array('api_url' => self::get_setting( 'mediawiki_api_url' )));
+			$scripto_application = Scripto_Application::get_instance( $scripto );
+			
+			// Set the page and dispatch it.
+			if ( ! isset( $_GET['scripto_page'] ) ) {
+				$_GET['scripto_page'] = 'index';
+			}
+			$scripto_application->dispatch( $_GET['scripto_page'] );
 		
-		// Set the page and dispatch it.
-		if ( ! isset( $_GET['scripto_page'] ) ) {
-			$_GET['scripto_page'] = 'index';
-		}
-		$scripto_application->dispatch( $_GET['scripto_page'] );
+		} catch ( Scripto_Exception $e ) {
+			$scripto_application->set_message( $e->getMessage() );
+			$scripto_application->dispatch( 'error' );
+		} 
 	}
 	
 	/**

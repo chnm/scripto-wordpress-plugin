@@ -1,7 +1,7 @@
 <p>You may log in to access your account and enable certain Scripto features. 
 Login may not be required by the administrator.</p>
-<?php if ( $error ): ?>
-<p><?php echo $error; ?></p>
+<?php if ( $this->_message ): ?>
+<p><?php echo $this->_message; ?></p>
 <?php endif; ?>
 <form action="" method="post">
 	<p>Username <input type="input" name="scripto_username" /></p>
