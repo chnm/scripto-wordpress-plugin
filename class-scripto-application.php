@@ -459,22 +459,30 @@ class Scripto_Application
 	/**
 	 * Get the specified template and append the result to the cached content.
 	 * 
-	 * Used in methods ending with "_page" to set the content of a page. This 
+	 * Templates contain discrete HTML content of Scripto application pages. 
+	 * Page methods use this method to append content to the page. This strategy 
 	 * separates business logic from the HTML template, simulating the MVC 
 	 * pattern. Template files exist in the templates/ directory.
 	 * 
-	 * @param string $template_name
-	 * @param array $vars
-	 * @return string
+	 * @param string $template_name The name of the template, without the .php
+	 * file extension.
+	 * @param array $vars Associative array containg variables to be imported 
+	 * into the template's scope.
 	 */
-	protected function _append_content( $template_name, $vars = array() ) {
+	protected function _append_content( $template_name, array $vars = array() ) {
+		
+		// The template file must exist.
+		$template_path = dirname( __FILE__ ) . "/templates/$template_name.php";
+		if ( ! is_file( $template_path ) ) {
+			throw new Scripto_Exception( "The Scripto template \"$template_name\" does not exist." );
+		}
 		
 		// Import passed variables into the current scope.
 		extract( $vars );
 		
 		// Output buffer and include the template, then set the content.
 		ob_start();
-		include "templates/$template_name.php";
+		include $template_path;
 		$this->_content .= ob_get_contents();
 		ob_end_clean();
 	}
