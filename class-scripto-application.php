@@ -20,12 +20,12 @@ class Scripto_Application
 	protected $_application_page_id;
 	
 	/**
-	 * @var The cached content of the current application page.
+	 * @var The HTML of the current application page.
 	 */
-	protected $_content = '';
+	protected $_page = '';
 	
 	/**
-	 * @var The message, if any, to display on the page.
+	 * @var The message to display on the page.
 	 */
 	protected $_message = '';
 	
@@ -168,15 +168,15 @@ class Scripto_Application
 			$user_document_pages[$i]['document_title'] = $document_title;
 		}
 		
-		$this->_append_content( 'navigation' );
+		$this->_add_template( 'navigation' );
 		if ( $this->_scripto->isLoggedIn() ) {
-			$this->_append_content( 'user_document_pages', compact( 'user_document_pages' ) );
+			$this->_add_template( 'user_document_pages', compact( 'user_document_pages' ) );
 		} else {
 			$vars = array(
 				'login_url' => $this->scripto_url( 'login' ), 
 				'recent_changes_url' => $this->scripto_url( 'recent_changes' ), 
 			);
-			$this->_append_content( 'index', $vars );
+			$this->_add_template( 'index', $vars );
 		}
 	}
 	
@@ -205,8 +205,8 @@ class Scripto_Application
 		);
 		$talk_url = $this->scripto_url( 'talk', $params );
 		
-		$this->_append_content( 'navigation' );
-		$this->_append_content( 'transcribe', compact( 'media_viewer', 
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'transcribe', compact( 'media_viewer', 
 			'doc', 
 			'transcription_history_url', 
 			'talk_url' ) );
@@ -286,8 +286,8 @@ class Scripto_Application
 			$i++;
 		}
 		
-		$this->_append_content( 'navigation' );
-		$this->_append_content( 'history', compact( 'history', 'doc' ) );
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'history', compact( 'history', 'doc' ) );
 	}
 	
 	/**
@@ -362,8 +362,8 @@ class Scripto_Application
 			$i++;
 		}
 		
-		$this->_append_content( 'navigation' );
-		$this->_append_content( 'recent-changes', compact( 'recent_changes' ) );
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'recent-changes', compact( 'recent_changes' ) );
 	}
 	
 	/**
@@ -389,8 +389,8 @@ class Scripto_Application
 			}
 		}
 		
-		$this->_append_content( 'navigation' );
-		$this->_append_content( 'login', compact( 'error' ) );
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'login' );
 	}
 	
 	/**
@@ -402,9 +402,12 @@ class Scripto_Application
 		exit;
 	}
 	
+	/**
+	 * The error page.
+	 */
 	public function error_page() {
-		$this->_append_content( 'navigation' );
-		$this->_append_content( 'error' );
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'error' );
 	}
 	
 	/**
@@ -496,7 +499,7 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Set a message to be shown in the message template.
+	 * Set a message to be shown.
 	 * 
 	 * @param string $message
 	 */
@@ -505,19 +508,19 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Get the application page content.
+	 * Get the application page HTML.
 	 * 
-	 * Assumes self::set_page_content() has already been run. May be called 
+	 * Assumes self::dispatch() has already been called. May be called 
 	 * after output is sent to the browser.
 	 * 
 	 * @return string
 	 */
-	public function get_content() {
-		return $this->_content;
+	public function get_page() {
+		return $this->_page;
 	}
 	
 	/**
-	 * Get the specified template and append the result to the cached content.
+	 * Get the specified template and append the result to the page.
 	 * 
 	 * Templates contain discrete HTML content of Scripto application pages. 
 	 * Page methods use this method to append content to the page. This strategy 
@@ -529,7 +532,7 @@ class Scripto_Application
 	 * @param array $vars Associative array containg variables to be imported 
 	 * into the template's scope.
 	 */
-	protected function _append_content( $template_name, array $vars = array() ) {
+	protected function _add_template( $template_name, array $vars = array() ) {
 		
 		// The template file must exist.
 		$template_path = dirname( __FILE__ ) . "/templates/$template_name.php";
@@ -543,7 +546,7 @@ class Scripto_Application
 		// Output buffer and include the template, then set the content.
 		ob_start();
 		include $template_path;
-		$this->_content .= ob_get_contents();
+		$this->_page .= ob_get_contents();
 		ob_end_clean();
 	}
 }

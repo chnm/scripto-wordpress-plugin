@@ -317,7 +317,7 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	 */
 	public static function scripto_application( $atts, $content, $code ) {
 		$scripto_application = Scripto_Application::get_instance();
-		echo $scripto_application->get_content();
+		echo $scripto_application->get_page();
 	}
 	
 	/**
