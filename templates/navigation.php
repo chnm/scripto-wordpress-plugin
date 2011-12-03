@@ -7,6 +7,14 @@
 	<?php endif; ?>
 	| 
 	
+	<!-- scripto navigation: recent changes -->
+	<?php if ( 'recent_changes' == $_GET['scripto_page'] ): ?>
+	recent changes
+	<?php else: ?>
+	<a href="<?php echo $this->scripto_url( 'recent_changes' ); ?>">recent changes</a>
+	<?php endif; ?>
+	| 
+	
 	<!-- scripto navigation: login/logout -->
 	<?php if ( $this->_scripto->isLoggedIn() ): ?>
 	<?php $user_name = $this->_scripto->getUserName(); ?>
@@ -17,13 +25,5 @@
 	<?php else: ?>
 	<a href="<?php echo $this->scripto_url( 'login' ); ?>">login</a>
 	<?php endif; ?>
-	<?php endif; ?>
-	| 
-	
-	<!-- scripto navigation: recent changes -->
-	<?php if ( 'recent_changes' == $_GET['scripto_page'] ): ?>
-	recent changes
-	<?php else: ?>
-	<a href="<?php echo $this->scripto_url( 'recent_changes' ); ?>">recent changes</a>
 	<?php endif; ?>
 </p>
