@@ -117,6 +117,9 @@ class Scripto_Plugin
 			return;
 		}
 		
+		// Strip slashes from HTTP POST.
+		$_POST = array_map( 'stripslashes_deep', $_POST );
+		
 		// Load the Scripto application environment.
 		set_include_path(get_include_path() 
 			. PATH_SEPARATOR . self::get_setting( 'zend_framework_path' ) 
