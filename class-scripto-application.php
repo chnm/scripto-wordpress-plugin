@@ -192,9 +192,6 @@ class Scripto_Application
 			$doc->editTranscriptionPage( $_POST['scripto_transcripton'] );
 		}
 		
-		// Set the media viewer.
-		$media_viewer = $this->get_media_viewer( $_GET['scripto_doc_page_id'] );
-		
 		// Set the transcription history URL.
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
@@ -211,10 +208,7 @@ class Scripto_Application
 		$url_talk = $this->scripto_url( 'talk', $params );
 		
 		$this->_add_template( 'navigation' );
-		$this->_add_template( 'transcribe', compact( 'media_viewer', 
-			'doc', 
-			'url_transcription_history', 
-			'url_talk' ) );
+		$this->_add_template( 'transcribe', compact( 'doc', 'url_transcription_history', 'url_talk' ) );
 	}
 	
 	/**
@@ -228,9 +222,6 @@ class Scripto_Application
 		if ( isset( $_POST['scripto_talk'] ) ) {
 			$doc->editTalkPage( $_POST['scripto_talk'] );
 		}
-		
-		// Set the media viewer.
-		$media_viewer = $this->get_media_viewer( $_GET['scripto_doc_page_id'] );
 		
 		// Set the talk history URL.
 		$params = array(
@@ -248,10 +239,7 @@ class Scripto_Application
 		$url_transcription = $this->scripto_url( 'transcribe', $params );
 		
 		$this->_add_template( 'navigation' );
-		$this->_add_template( 'talk', compact( 'media_viewer', 
-			'doc', 
-			'url_talk_history', 
-			'url_transcription' ) );
+		$this->_add_template( 'talk', compact( 'doc', 'url_talk_history', 'url_transcription' ) );
 	}
 	
 	/**

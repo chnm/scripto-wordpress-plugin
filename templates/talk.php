@@ -2,7 +2,7 @@
 <h3><?php echo $doc->getTitle(); ?></h3>
 
 <div>
-	<?php echo $media_viewer; ?>
+	<?php echo $this->get_media_viewer( $_GET['scripto_doc_page_id'] ); ?>
 </div>
 
 <div>
