@@ -406,6 +406,10 @@ class Scripto_Application
 	 * The error page.
 	 */
 	public function error_page() {
+		
+		// Empty all content of the page that was set before the error.
+		$this->reset_page();
+		
 		$this->_add_template( 'navigation' );
 		$this->_add_template( 'error' );
 	}
@@ -517,6 +521,13 @@ class Scripto_Application
 	 */
 	public function get_page() {
 		return $this->_page;
+	}
+	
+	/**
+	 * Reset the application page.
+	 */
+	public function reset_page() {
+		$this->_page = '';
 	}
 	
 	/**
