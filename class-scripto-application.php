@@ -192,24 +192,66 @@ class Scripto_Application
 			$doc->editTranscriptionPage( $_POST['scripto_transcripton'] );
 		}
 		
+		// Set the media viewer.
 		$media_viewer = $this->get_media_viewer( $_GET['scripto_doc_page_id'] );
+		
+		// Set the transcription history URL.
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
 			'scripto_ns_index'    => '0', 
 		);
-		$transcription_history_url = $this->scripto_url( 'history', $params );
+		$url_transcription_history = $this->scripto_url( 'history', $params );
+		
+		// Set the talk page URL.
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
 			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
 		);
-		$talk_url = $this->scripto_url( 'talk', $params );
+		$url_talk = $this->scripto_url( 'talk', $params );
 		
 		$this->_add_template( 'navigation' );
 		$this->_add_template( 'transcribe', compact( 'media_viewer', 
 			'doc', 
-			'transcription_history_url', 
-			'talk_url' ) );
+			'url_transcription_history', 
+			'url_talk' ) );
+	}
+	
+	/**
+	 * The talk page.
+	 */
+	public function talk_page() {
+		
+		$doc = $this->get_document_page();
+		
+		// Save the transcription.
+		if ( isset( $_POST['scripto_talk'] ) ) {
+			$doc->editTalkPage( $_POST['scripto_talk'] );
+		}
+		
+		// Set the media viewer.
+		$media_viewer = $this->get_media_viewer( $_GET['scripto_doc_page_id'] );
+		
+		// Set the talk history URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+			'scripto_ns_index'    => '1', 
+		);
+		$url_talk_history = $this->scripto_url( 'history', $params );
+		
+		// Set the transcription page URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+		);
+		$url_transcription = $this->scripto_url( 'transcribe', $params );
+		
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'talk', compact( 'media_viewer', 
+			'doc', 
+			'url_talk_history', 
+			'url_transcription' ) );
 	}
 	
 	/**
@@ -318,7 +360,7 @@ class Scripto_Application
 				);
 				$url_history = $this->scripto_url( 'history', $params );
 				if ($recent_change['new']) {
-					$changes .= ' (diff | <a href="' . $url_diff . '">hist</a>)';
+					$changes .= ' (diff | <a href="' . $url_history . '">hist</a>)';
 				} else {
 					$changes .= ' (<a href="' . $url_diff . '">diff</a> | <a href="' . $url_history . '">hist</a>)';
 				}
