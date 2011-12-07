@@ -1,4 +1,5 @@
 <h2>Welcome to Scripto!</h2>
+
 <p>By using this application you are helping to transcribe documents in 
 <i><?php echo get_option('blogname'); ?></i>. All posts with attachments can be 
 transcribed. For these purposes a post is a <em>document</em>, and an post's 

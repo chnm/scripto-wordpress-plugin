@@ -1,5 +1,4 @@
 <p>
-	<!-- scripto navigation: index -->
 	<?php if ( 'index' == $_GET['scripto_page'] ): ?>
 	home
 	<?php else: ?>
@@ -7,7 +6,6 @@
 	<?php endif; ?>
 	| 
 	
-	<!-- scripto navigation: recent changes -->
 	<?php if ( 'recent_changes' == $_GET['scripto_page'] ): ?>
 	recent changes
 	<?php else: ?>
@@ -15,7 +13,6 @@
 	<?php endif; ?>
 	| 
 	
-	<!-- scripto navigation: login/logout -->
 	<?php if ( $this->_scripto->isLoggedIn() ): ?>
 	<?php $user_name = $this->_scripto->getUserName(); ?>
 	logged in as <?php echo $user_name; ?> (<a href="<?php echo $this->scripto_url( 'logout' ); ?>">logout</a>)

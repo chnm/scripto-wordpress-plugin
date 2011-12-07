@@ -1,4 +1,6 @@
 <h2>Recent Changes to Scripto</h2>
+
+<?php if ( $recent_changes ): ?>
 <table>
 	<thead>
 	<tr>
@@ -23,3 +25,6 @@
 	<?php endforeach; ?>
 	</tbody>
 </table>
+<?php else: ?>
+<p>There are no recent changes.</p>
+<?php endif; ?>

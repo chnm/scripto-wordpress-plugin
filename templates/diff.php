@@ -8,8 +8,8 @@
 	del.diffchange {background-color: #FFBDBD;}
 </style>
 
-<h2><?php echo $doc->getPageName(); ?></h2>
-<h3><?php echo $doc->getTitle(); ?></h3>
+<h2>Revision Difference for <cite><?php echo $doc->getPageName(); ?></cite></h2>
+<h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
 
 <table id="scripto-diff">
 	<thead>

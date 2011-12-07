@@ -1,4 +1,6 @@
 <h2>Your Contributions</h2>
+
+<?php if ( $user_document_pages ): ?>
 <table>
 	<thead>
 	<tr>
@@ -17,3 +19,6 @@
 	<?php endforeach; ?>
 	</tbody>
 </table>
+<?php else: ?>
+<p>You have no contributions.</p>
+<?php endif; ?>
