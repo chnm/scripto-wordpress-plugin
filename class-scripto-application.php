@@ -269,7 +269,7 @@ class Scripto_Application
 				'scripto_doc_id'      => $doc->getId(), 
 				'scripto_doc_page_id' => $doc->getPageId(), 
 				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
-				'scripto_old_rev_id'  => $revision['parent_id'], 
+				'scripto_old_rev_id'  => $revision['revision_id'], 
 				'scripto_rev_id'      => $info['last_revision_id'], 
 			);
 			$url_current = $this->scripto_url( 'diff', $params );
