@@ -135,14 +135,36 @@ class Scripto_Application
 	}
 	
 	/**
-	 * The index (default) page.
+	 * The index page.
 	 */
 	public function index_page() {
+		
+		if ( $this->_scripto->isLoggedIn() ) {
+			wp_redirect( $this->scripto_url( 'user_document_pages' ) );
+			exit;
+		}
+		
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'index' );
+	}
+	
+	/**
+	 * The user document pages page.
+	 */
+	public function user_document_pages_page() {
+		
+		// Only logged in users have user document pages.
+		if ( ! $this->_scripto->isLoggedIn() ) {
+			wp_redirect( $this->scripto_url( 'index' ) );
+			exit;
+		}
+		
 		$_user_document_pages = $this->_scripto->getUserDocumentPages( 50 );
 		
 		$i = 0;
 		$user_document_pages = array();
 		foreach ( $_user_document_pages as $user_document_page) {
+			
 			// "Document Page Name" column.
 			if ( 1 == $user_document_page['namespace_index'] ) {
 				$scripto_page = 'talk';
@@ -169,15 +191,7 @@ class Scripto_Application
 		}
 		
 		$this->_add_template( 'navigation' );
-		if ( $this->_scripto->isLoggedIn() ) {
-			$this->_add_template( 'user_document_pages', compact( 'user_document_pages' ) );
-		} else {
-			$vars = array(
-				'login_url' => $this->scripto_url( 'login' ), 
-				'recent_changes_url' => $this->scripto_url( 'recent_changes' ), 
-			);
-			$this->_add_template( 'index', $vars );
-		}
+		$this->_add_template( 'user_document_pages', compact( 'user_document_pages' ) );
 	}
 	
 	/**
@@ -330,6 +344,7 @@ class Scripto_Application
 		$i = 0;
 		$recent_changes = array();
 		foreach ( $_recent_changes as $recent_change ) {
+			
 			// "Changes" column.
 			$changes = ucfirst($recent_change['action']);
 			if ( ! in_array( $recent_change['action'], array('Protected', 'Unprotected') ) ) {
@@ -431,19 +446,19 @@ class Scripto_Application
 	 */
 	public function login_page() {
 		
-		if ($this->_scripto->isLoggedIn()) {
-			wp_redirect( $this->scripto_url( 'recent_changes' ) );
+		if ( $this->_scripto->isLoggedIn() ) {
+			wp_redirect( $this->scripto_url( 'user_document_pages' ) );
 			exit;
 		}
 		
 		// Handle the login form.
-		if ( isset($_POST['scripto_username']) && isset($_POST['scripto_password']) ) {
+		if ( isset( $_POST['scripto_username'], $_POST['scripto_password'] ) ) {
 			try {
 				$this->_scripto->login( $_POST['scripto_username'], $_POST['scripto_password'] );
-				wp_redirect( $this->scripto_url( 'index' ) );
+				wp_redirect( $this->scripto_url( 'user_document_pages' ) );
 				exit;
 			} catch ( Scripto_Service_Exception $e ) {
-				$this->_message = $e->getMessage();
+				$this->set_message( $e->getMessage() );
 			}
 		}
 		
@@ -567,6 +582,13 @@ class Scripto_Application
 	 */
 	public function set_message( $message ) {
 		$this->_message = $message;
+	}
+	
+	/**
+	 * Get the message.
+	 */
+	public function get_message() {
+		return $this->_message;
 	}
 	
 	/**
