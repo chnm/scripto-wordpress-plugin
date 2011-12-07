@@ -397,6 +397,34 @@ class Scripto_Application
 	}
 	
 	/**
+	 * The diff page.
+	 */
+	public function diff_page() {
+		
+		$doc = $this->get_document_page();
+		
+		$old_revision = $this->_scripto->getRevision( $_GET['scripto_old_rev_id'] );
+		$revision = $this->_scripto->getRevision( $_GET['scripto_rev_id'] );
+		
+		$col_1_header = 'Revision as of ' . date('H:i:s, M d, Y', strtotime($old_revision['timestamp'])) . '<br />';
+		$col_1_header .= ucfirst( $old_revision['action'] ) . ' by ' . $old_revision['user'];
+		
+		$col_2_header = 'Revision as of ' . date('H:i:s, M d, Y', strtotime($revision['timestamp'])) . '<br />';
+		$col_2_header .= ucfirst( $revision['action'] ) . ' by ' . $revision['user'];
+		
+		$revision_as_of = date( 'H:i:s, M d, Y', strtotime( $revision['timestamp'] ) );
+		
+		$revision_html = $revision['html'];
+		
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'diff', compact( 'doc', 
+			'col_1_header', 
+			'col_2_header', 
+			'revision_as_of',
+			'revision_html' ) );
+	}
+	
+	/**
 	 * The login page.
 	 * 
 	 * @throws Scripto_Exception
