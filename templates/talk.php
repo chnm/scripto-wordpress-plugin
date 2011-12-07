@@ -8,10 +8,15 @@
 <div>
 	<a href="<?php echo $url_transcription; ?>">transcription</a> | <a href="<?php echo $url_talk_history; ?>">history</a> 
 </div>
+
+<?php if ( $doc->canEditTalkPage() ): ?>
 <form action="" method="post">
 	<textarea name="scripto_talk" cols="45" rows="12"><?php echo $doc->getTalkPageWikitext(); ?></textarea>
 	<input type="submit" name="scripto_submit_talk" value="Save Discussion" />
 </form>
+<?php else: ?>
+<p>You don't have permission to discuss this page.</p>
+<?php endif; ?>
 
 <h2>Current Discussion</h2>
 <div>

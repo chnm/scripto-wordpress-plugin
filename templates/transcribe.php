@@ -8,10 +8,15 @@
 <div>
 	<a href="<?php echo $url_talk; ?>">discussion</a> | <a href="<?php echo $url_transcription_history; ?>">history</a> 
 </div>
+
+<?php if ( $doc->canEditTranscriptionPage() ): ?>
 <form action="" method="post">
 	<textarea name="scripto_transcripton" cols="45" rows="12"><?php echo $doc->getTranscriptionPageWikitext(); ?></textarea>
 	<input type="submit" name="scripto_submit_transcription" value="Save Transcription" />
 </form>
+<?php else: ?>
+<p>You don't have permission to transcribe this page.</p>
+<?php endif; ?>
 
 <h2>Current Transcription</h2>
 <div>
