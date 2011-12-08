@@ -440,6 +440,33 @@ class Scripto_Application
 	}
 	
 	/**
+	 * The revision page.
+	 */
+	public function revision_page() {
+		
+		$doc = $this->get_document_page();
+		$revision = $this->_scripto->getRevision( $_GET['scripto_rev_id'] );
+		
+		if ( isset( $_POST['scripto_submit_revert'] ) ) {
+			if ( '1' == $_GET['scripto_ns_index'] ) {
+				$doc->editTalkPage($revision['wikitext']);
+			} else {
+				$doc->editTranscriptionPage($revision['wikitext']);
+			}
+			$params = array(
+				'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+				'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+			);
+			wp_redirect( $this->scripto_url( 'history', $params ) );
+			exit;
+		}
+		
+		$this->_add_template( 'navigation' );
+		$this->_add_template( 'revision', compact( 'doc', 'revision' ) );
+	}
+	
+	/**
 	 * The login page.
 	 * 
 	 * @throws Scripto_Exception
