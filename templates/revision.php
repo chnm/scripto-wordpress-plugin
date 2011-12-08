@@ -1,4 +1,4 @@
-<h2>Revision of <cite><?php echo $doc->getPageName(); ?></cite><br />
+<h2>Revision of <?php if ( '1' == $_GET['scripto_ns_index'] ): ?>Talk: <?php endif; ?><cite><?php echo $doc->getPageName(); ?></cite><br />
 as of <?php echo date( 'H:i:s, M d, Y', strtotime( $revision['timestamp'] ) ) ?>; <?php echo ucfirst( $revision['action'] ); ?> by <?php echo $revision['user']; ?></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
 

@@ -262,7 +262,9 @@ class Scripto_Application
 	public function history_page() {
 		
 		// Set the default namespace index.
-		$_GET = wp_parse_args( $_GET, array('scripto_ns_index' => '0') );
+		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
+			$_GET['scripto_ns_index'] = '0';
+		}
 		
 		$doc = $this->get_document_page();
 		
@@ -416,6 +418,11 @@ class Scripto_Application
 	 */
 	public function diff_page() {
 		
+		// Set the default namespace index.
+		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
+			$_GET['scripto_ns_index'] = '0';
+		}
+		
 		$doc = $this->get_document_page();
 		
 		$old_revision = $this->_scripto->getRevision( $_GET['scripto_old_rev_id'] );
@@ -443,6 +450,11 @@ class Scripto_Application
 	 * The revision page.
 	 */
 	public function revision_page() {
+		
+		// Set the default namespace index.
+		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
+			$_GET['scripto_ns_index'] = '0';
+		}
 		
 		$doc = $this->get_document_page();
 		$revision = $this->_scripto->getRevision( $_GET['scripto_rev_id'] );
@@ -619,15 +631,15 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Get the application page HTML.
+	 * Get the application page.
 	 * 
-	 * Assumes self::dispatch() has already been called. May be called 
-	 * after output is sent to the browser.
-	 * 
-	 * @return string
+	 * Adds wrapping div tags. Assumes self::dispatch() has already been called 
+	 * and that the page content is complete. May be called after output is sent 
+	 * to the browser.
 	 */
 	public function get_page() {
-		return $this->_page;
+		$page = "<div class=\"scripto-page\">{$this->_page}</div>";
+		return $page;
 	}
 	
 	/**
