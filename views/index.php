@@ -1,3 +1,5 @@
+<?php echo $this->get_navigation(); ?>
+
 <h2>Welcome to Scripto!</h2>
 
 <p>By using this application you are helping to transcribe documents in 

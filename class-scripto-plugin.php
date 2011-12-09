@@ -135,10 +135,10 @@ class Scripto_Plugin
 			$scripto_application = Scripto_Application::get_instance( $scripto );
 			
 			// Set the page and dispatch it.
-			if ( ! isset( $_GET['scripto_page'] ) ) {
-				$_GET['scripto_page'] = 'index';
+			if ( ! isset( $_GET['scripto_action'] ) ) {
+				$_GET['scripto_action'] = 'index';
 			}
-			$scripto_application->dispatch( $_GET['scripto_page'] );
+			$scripto_application->dispatch( $_GET['scripto_action'] );
 		
 		} catch ( Scripto_Exception $e ) {
 			$scripto_application->set_message( $e->getMessage() );
@@ -287,12 +287,12 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 		);
 		$attachments = get_posts( $args );
 		
-		// Set the required parameters, where "p" is the Scripto application page ID 
-		// and "scripto_doc_id" is the current post's ID. "p=?" always redirects to 
-		// the associated permalink, if any.
+		// Set the required parameters, where "p" is the Scripto application 
+		// page ID and "scripto_doc_id" is the current post's ID. "p=?" always 
+		// redirects to the associated permalink, if any.
 		$params = array(
 			'p'              => get_option( 'scripto_application_page_id' ), 
-			'scripto_page' => 'transcribe', 
+			'scripto_action' => 'transcribe', 
 			'scripto_doc_id' => get_the_ID(), 
 		);
 		
@@ -320,7 +320,7 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	 */
 	public static function scripto_application( $atts, $content, $code ) {
 		$scripto_application = Scripto_Application::get_instance();
-		echo $scripto_application->get_page();
+		$scripto_application->render();
 	}
 	
 	/**

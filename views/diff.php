@@ -1,3 +1,5 @@
+<?php echo $this->get_navigation(); ?>
+
 <style type="text/css">
 	#scripto-diff tr {border: none !important;}
 	#scripto-diff td {padding: 2px !important;}
@@ -10,6 +12,8 @@
 
 <h2>Revision Difference for <?php if ( '1' == $_GET['scripto_ns_index'] ): ?>Talk: <?php endif; ?><cite><?php echo $doc->getPageName(); ?></cite></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
+
+<p><a href="<?php echo $url_transcribe; ?>">transcribe page</a> | <a href="<?php echo $url_talk; ?>">discuss page</a></p>
 
 <table id="scripto-diff">
 	<thead>

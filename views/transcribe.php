@@ -1,3 +1,5 @@
+<?php echo $this->get_navigation(); ?>
+
 <h2>Transcribe <cite><?php echo $doc->getPageName(); ?></cite></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
 
@@ -6,7 +8,7 @@
 </div>
 
 <div>
-	<a href="<?php echo $url_talk; ?>">discussion</a> | <a href="<?php echo $url_transcription_history; ?>">history</a> 
+	<a href="<?php echo $url_talk; ?>">discuss this page</a> | <a href="<?php echo $url_transcription_history; ?>">view transcription history</a> 
 </div>
 
 <?php if ( $doc->canEditTranscriptionPage() ): ?>

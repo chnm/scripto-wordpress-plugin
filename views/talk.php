@@ -1,3 +1,5 @@
+<?php echo $this->get_navigation(); ?>
+
 <h2>Discuss <cite><?php echo $doc->getPageName(); ?></cite></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
 
@@ -6,7 +8,7 @@
 </div>
 
 <div>
-	<a href="<?php echo $url_transcription; ?>">transcription</a> | <a href="<?php echo $url_talk_history; ?>">history</a> 
+	<a href="<?php echo $url_transcription; ?>">transcribe this page</a> | <a href="<?php echo $url_talk_history; ?>">view discussion history</a> 
 </div>
 
 <?php if ( $doc->canEditTalkPage() ): ?>

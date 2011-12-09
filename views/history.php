@@ -1,5 +1,9 @@
+<?php echo $this->get_navigation(); ?>
+
 <h2>History for <?php if ( '1' == $_GET['scripto_ns_index'] ): ?>Talk: <?php endif; ?><cite><?php echo $doc->getPageName(); ?></cite></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
+
+<p><a href="<?php echo $url_transcribe; ?>">transcribe page</a> | <a href="<?php echo $url_talk; ?>">discuss page</a></p>
 
 <?php if ( $history ): ?>
 <table>

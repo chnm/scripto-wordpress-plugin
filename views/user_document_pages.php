@@ -1,3 +1,5 @@
+<?php echo $this->get_navigation(); ?>
+
 <h2>Your Contributions</h2>
 
 <?php if ( $user_document_pages ): ?>

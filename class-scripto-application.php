@@ -20,12 +20,17 @@ class Scripto_Application
 	protected $_application_page_id;
 	
 	/**
-	 * @var The HTML of the current application page.
+	 * @var The HTML of the current view.
 	 */
-	protected $_page = '';
+	protected $_view = '';
 	
 	/**
-	 * @var The message to display on the page.
+	 * @var The variables to be assigned to the view.
+	 */
+	protected $_view_vars = array();
+	
+	/**
+	 * @var The message to display on the view.
 	 */
 	protected $_message = '';
 	
@@ -135,31 +140,25 @@ class Scripto_Application
 	}
 	
 	/**
-	 * The index page.
+	 * The index action.
 	 */
-	public function index_page() {
-		
+	public function index_action() {
 		if ( $this->_scripto->isLoggedIn() ) {
-			wp_redirect( $this->scripto_url( 'user_document_pages' ) );
-			exit;
+			$this->redirect( 'user_document_pages' );
 		}
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'index' );
 	}
 	
 	/**
-	 * The user document pages page.
+	 * The user document pages action.
 	 */
-	public function user_document_pages_page() {
+	public function user_document_pages_action() {
 		
 		// Only logged in users have user document pages.
 		if ( ! $this->_scripto->isLoggedIn() ) {
-			wp_redirect( $this->scripto_url( 'index' ) );
-			exit;
+			$this->redirect( 'index' );
 		}
 		
-		$_user_document_pages = $this->_scripto->getUserDocumentPages( 50 );
+		$_user_document_pages = $this->_scripto->getUserDocumentPages( 100 );
 		
 		$i = 0;
 		$user_document_pages = array();
@@ -167,17 +166,17 @@ class Scripto_Application
 			
 			// "Document Page Name" column.
 			if ( 1 == $user_document_page['namespace_index'] ) {
-				$scripto_page = 'talk';
+				$scripto_action = 'talk';
 				$page_name = 'Talk: ' . $user_document_page['document_page_name'];
 			} else {
-				$scripto_page = 'transcribe';
+				$scripto_action = 'transcribe';
 				$page_name = $user_document_page['document_page_name'];
 			}
 			$params = array(
 				'scripto_doc_id'      => $user_document_page['document_id'], 
 				'scripto_doc_page_id' => $user_document_page['document_page_id']
 			);
-			$url_transcribe = $this->scripto_url( $scripto_page, $params );
+			$url_transcribe = $this->scripto_url( $scripto_action, $params );
 			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
 			$user_document_pages[$i]['document_page_name'] = $document_page_name;
 			
@@ -190,156 +189,13 @@ class Scripto_Application
 			$user_document_pages[$i]['document_title'] = $document_title;
 		}
 		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'user_document_pages', compact( 'user_document_pages' ) );
+		$this->assign( 'user_document_pages', $user_document_pages );
 	}
 	
 	/**
-	 * The transcribe page.
+	 * The recent changes action.
 	 */
-	public function transcribe_page() {
-		
-		$doc = $this->get_document_page();
-		
-		// Save the transcription.
-		if ( isset( $_POST['scripto_transcripton'] ) ) {
-			$doc->editTranscriptionPage( $_POST['scripto_transcripton'] );
-		}
-		
-		// Set the transcription history URL.
-		$params = array(
-			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
-			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
-			'scripto_ns_index'    => '0', 
-		);
-		$url_transcription_history = $this->scripto_url( 'history', $params );
-		
-		// Set the talk page URL.
-		$params = array(
-			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
-			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
-		);
-		$url_talk = $this->scripto_url( 'talk', $params );
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'transcribe', compact( 'doc', 'url_transcription_history', 'url_talk' ) );
-	}
-	
-	/**
-	 * The talk page.
-	 */
-	public function talk_page() {
-		
-		$doc = $this->get_document_page();
-		
-		// Save the transcription.
-		if ( isset( $_POST['scripto_talk'] ) ) {
-			$doc->editTalkPage( $_POST['scripto_talk'] );
-		}
-		
-		// Set the talk history URL.
-		$params = array(
-			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
-			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
-			'scripto_ns_index'    => '1', 
-		);
-		$url_talk_history = $this->scripto_url( 'history', $params );
-		
-		// Set the transcription page URL.
-		$params = array(
-			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
-			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
-		);
-		$url_transcription = $this->scripto_url( 'transcribe', $params );
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'talk', compact( 'doc', 'url_talk_history', 'url_transcription' ) );
-	}
-	
-	/**
-	 * The history page.
-	 */
-	public function history_page() {
-		
-		// Set the default namespace index.
-		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
-			$_GET['scripto_ns_index'] = '0';
-		}
-		
-		$doc = $this->get_document_page();
-		
-		if ( '1' == $_GET['scripto_ns_index'] ) {
-			$info = $doc->getTalkPageInfo();
-			$_history = $doc->getTalkPageHistory();
-		} else {
-			$info = $doc->getTranscriptionPageInfo();
-			$_history = $doc->getTranscriptionPageHistory();
-		}
-		
-		$i = 0;
-		$history = array();
-		foreach ( $_history as $revision ) {
-			
-			// "Compare Changes" column.
-			$params = array(
-				'scripto_doc_id'      => $doc->getId(), 
-				'scripto_doc_page_id' => $doc->getPageId(), 
-				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
-				'scripto_old_rev_id'  => $revision['revision_id'], 
-				'scripto_rev_id'      => $info['last_revision_id'], 
-			);
-			$url_current = $this->scripto_url( 'diff', $params );
-			$params = array(
-				'scripto_doc_id'      => $doc->getId(), 
-				'scripto_doc_page_id' => $doc->getPageId(), 
-				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
-				'scripto_old_rev_id'  => $revision['parent_id'], 
-				'scripto_rev_id'      => $revision['revision_id'], 
-			);
-			$url_previous = $this->scripto_url( 'diff', $params );
-			if ( $revision['revision_id'] != $info['last_revision_id'] ) {
-				$current = '<a href="' . $url_current . '">current</a>';
-			} else {
-				$current = 'current';
-			}
-			if ( 0 != $revision['parent_id'] ) {
-				$previous = '<a href="' . $url_previous . '">previous</a>';
-			} else {
-				$previous = 'previous';
-			}
-			$history[$i]['compare_changes'] = "($current | $previous)";
-			
-			// "Changed on" column.
-			$params = array(
-				'scripto_doc_id'      => $doc->getId(), 
-				'scripto_doc_page_id' => $doc->getPageId(), 
-				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
-				'scripto_rev_id'      => $revision['revision_id'], 
-			);
-			$url_revision = $this->scripto_url( 'revision', $params );
-			$changed_on = '<a href="' . $url_revision . '">' . date( 'H:i:s M d, Y', strtotime( $revision['timestamp'] ) ) . '</a>';
-			$history[$i]['changed_on'] = $changed_on;
-			
-			// "Changed by" column.
-			$history[$i]['changed_by'] = $revision['user'];
-			
-			// "Size (bytes)" column.
-			$history[$i]['size'] = $revision['size'];
-			
-			// "Action" column.
-			$history[$i]['action'] = ucfirst($revision['action']);
-			
-			$i++;
-		}
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'history', compact( 'history', 'doc' ) );
-	}
-	
-	/**
-	 * The recent changes page.
-	 */
-	public function recent_changes_page() {
+	public function recent_changes_action() {
 		
 		$_recent_changes = $this->_scripto->getRecentChanges( 100 );
 		
@@ -374,17 +230,17 @@ class Scripto_Application
 			
 			// "Document Page Name" column.
 			if ( 1 == $recent_change['namespace_index'] ) {
-				$scripto_page = 'talk';
+				$scripto_action = 'talk';
 				$page_name = 'Talk: ' . $recent_change['document_page_name'];
 			} else {
-				$scripto_page = 'transcribe';
+				$scripto_action = 'transcribe';
 				$page_name = $recent_change['document_page_name'];
 			}
 			$params = array(
 				'scripto_doc_id'      => $recent_change['document_id'], 
 				'scripto_doc_page_id' => $recent_change['document_page_id']
 			);
-			$url_transcribe = $this->scripto_url( $scripto_page, $params );
+			$url_transcribe = $this->scripto_url( $scripto_action, $params );
 			$document_page_name = '<a href="' . $url_transcribe . '">' . $page_name . '</a>';
 			$recent_changes[$i]['document_page_name'] = $document_page_name;
 			
@@ -409,14 +265,166 @@ class Scripto_Application
 			$i++;
 		}
 		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'recent-changes', compact( 'recent_changes' ) );
+		$this->assign( 'recent_changes', $recent_changes );
 	}
 	
 	/**
-	 * The diff page.
+	 * The transcribe action.
 	 */
-	public function diff_page() {
+	public function transcribe_action() {
+		
+		$doc = $this->get_document_page();
+		
+		// Save the transcription.
+		if ( isset( $_POST['scripto_transcripton'] ) ) {
+			$doc->editTranscriptionPage( $_POST['scripto_transcripton'] );
+		}
+		
+		// Set the transcription history URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+			'scripto_ns_index'    => '0', 
+		);
+		$url_transcription_history = $this->scripto_url( 'history', $params );
+		
+		// Set the talk page URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+		);
+		$url_talk = $this->scripto_url( 'talk', $params );
+		
+		$this->assign( 'doc', $doc );
+		$this->assign( 'url_transcription_history', $url_transcription_history );
+		$this->assign( 'url_talk', $url_talk );
+	}
+	
+	/**
+	 * The talk action.
+	 */
+	public function talk_action() {
+		
+		$doc = $this->get_document_page();
+		
+		// Save the transcription.
+		if ( isset( $_POST['scripto_talk'] ) ) {
+			$doc->editTalkPage( $_POST['scripto_talk'] );
+		}
+		
+		// Set the talk history URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+			'scripto_ns_index'    => '1', 
+		);
+		$url_talk_history = $this->scripto_url( 'history', $params );
+		
+		// Set the transcription page URL.
+		$params = array(
+			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
+			'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
+		);
+		$url_transcription = $this->scripto_url( 'transcribe', $params );
+		
+		$this->assign( 'doc', $doc );
+		$this->assign( 'url_talk_history', $url_talk_history );
+		$this->assign( 'url_transcription', $url_transcription );
+	}
+	
+	/**
+	 * The history action.
+	 */
+	public function history_action() {
+		
+		// Set the default namespace index.
+		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
+			$_GET['scripto_ns_index'] = '0';
+		}
+		
+		$doc = $this->get_document_page();
+		
+		if ( '1' == $_GET['scripto_ns_index'] ) {
+			$info = $doc->getTalkPageInfo();
+			$_history = $doc->getTalkPageHistory( 100 );
+		} else {
+			$info = $doc->getTranscriptionPageInfo();
+			$_history = $doc->getTranscriptionPageHistory( 100 );
+		}
+		
+		$i = 0;
+		$history = array();
+		foreach ( $_history as $revision ) {
+			
+			// "Compare Changes" column.
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_old_rev_id'  => $revision['revision_id'], 
+				'scripto_rev_id'      => $info['last_revision_id'], 
+			);
+			$url_current = $this->scripto_url( 'diff', $params );
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_old_rev_id'  => $revision['parent_id'], 
+				'scripto_rev_id'      => $revision['revision_id'], 
+			);
+			$url_previous = $this->scripto_url( 'diff', $params );
+			if ( $revision['revision_id'] != $info['last_revision_id'] ) {
+				$current = '<a href="' . $url_current . '">current</a>';
+			} else {
+				$current = 'current';
+			}
+			if ( '0' != $revision['parent_id'] ) {
+				$previous = '<a href="' . $url_previous . '">previous</a>';
+			} else {
+				$previous = 'previous';
+			}
+			$history[$i]['compare_changes'] = "($current | $previous)";
+			
+			// "Changed on" column.
+			$params = array(
+				'scripto_doc_id'      => $doc->getId(), 
+				'scripto_doc_page_id' => $doc->getPageId(), 
+				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
+				'scripto_rev_id'      => $revision['revision_id'], 
+			);
+			$url_revision = $this->scripto_url( 'revision', $params );
+			$changed_on = '<a href="' . $url_revision . '">' . date( 'H:i:s M d, Y', strtotime( $revision['timestamp'] ) ) . '</a>';
+			$history[$i]['changed_on'] = $changed_on;
+			
+			// "Changed by" column.
+			$history[$i]['changed_by'] = $revision['user'];
+			
+			// "Size (bytes)" column.
+			$history[$i]['size'] = $revision['size'];
+			
+			// "Action" column.
+			$history[$i]['action'] = ucfirst($revision['action']);
+			
+			$i++;
+		}
+		
+		$params = array(
+			'scripto_doc_id'      => $doc->getId(), 
+			'scripto_doc_page_id' => $doc->getPageId(), 
+		);
+		$url_transcribe = $this->scripto_url( 'transcribe', $params );
+		$url_talk = $this->scripto_url( 'talk', $params );
+		
+		$this->assign( 'doc', $doc );
+		$this->assign( 'history', $history );
+		$this->assign( 'url_transcribe', $url_transcribe );
+		$this->assign( 'url_talk', $url_talk );
+	}
+	
+	/**
+	 * The diff action.
+	 */
+	public function diff_action() {
 		
 		// Set the default namespace index.
 		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
@@ -438,18 +446,26 @@ class Scripto_Application
 		
 		$revision_html = $revision['html'];
 		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'diff', compact( 'doc', 
-			'col_1_header', 
-			'col_2_header', 
-			'revision_as_of',
-			'revision_html' ) );
+		$params = array(
+			'scripto_doc_id'      => $doc->getId(), 
+			'scripto_doc_page_id' => $doc->getPageId(), 
+		);
+		$url_transcribe = $this->scripto_url( 'transcribe', $params );
+		$url_talk = $this->scripto_url( 'talk', $params );
+		
+		$this->assign( 'doc', $doc );
+		$this->assign( 'col_1_header', $col_1_header );
+		$this->assign( 'col_2_header', $col_2_header );
+		$this->assign( 'revision_as_of', $revision_as_of );
+		$this->assign( 'revision_html', $revision_html );
+		$this->assign( 'url_transcribe', $url_transcribe );
+		$this->assign( 'url_talk', $url_talk );
 	}
 	
 	/**
-	 * The revision page.
+	 * The revision action.
 	 */
-	public function revision_page() {
+	public function revision_action() {
 		
 		// Set the default namespace index.
 		if ( ! isset( $_GET['scripto_ns_index'] ) ) {
@@ -470,60 +486,89 @@ class Scripto_Application
 				'scripto_doc_page_id' => $_GET['scripto_doc_page_id'], 
 				'scripto_ns_index'    => $_GET['scripto_ns_index'], 
 			);
-			wp_redirect( $this->scripto_url( 'history', $params ) );
-			exit;
+			$this->redirect( 'history', $params );
 		}
 		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'revision', compact( 'doc', 'revision' ) );
+		$params = array(
+			'scripto_doc_id'      => $doc->getId(), 
+			'scripto_doc_page_id' => $doc->getPageId(), 
+		);
+		$url_transcribe = $this->scripto_url( 'transcribe', $params );
+		$url_talk = $this->scripto_url( 'talk', $params );
+		
+		$this->assign( 'doc', $doc );
+		$this->assign( 'revision', $revision );
+		$this->assign( 'url_transcribe', $url_transcribe );
+		$this->assign( 'url_talk', $url_talk );
 	}
 	
 	/**
-	 * The login page.
-	 * 
-	 * @throws Scripto_Exception
+	 * The login action.
 	 */
-	public function login_page() {
+	public function login_action() {
 		
 		if ( $this->_scripto->isLoggedIn() ) {
-			wp_redirect( $this->scripto_url( 'user_document_pages' ) );
-			exit;
+			$this->redirect( 'user_document_pages' );
 		}
 		
 		// Handle the login form.
 		if ( isset( $_POST['scripto_username'], $_POST['scripto_password'] ) ) {
 			try {
 				$this->_scripto->login( $_POST['scripto_username'], $_POST['scripto_password'] );
-				wp_redirect( $this->scripto_url( 'user_document_pages' ) );
+				$this->redirect( 'user_document_pages' );
 				exit;
 			} catch ( Scripto_Service_Exception $e ) {
 				$this->set_message( $e->getMessage() );
 			}
 		}
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'login' );
 	}
 	
 	/**
-	 * The logout page.
+	 * The logout action.
 	 */
-	public function logout_page() {
+	public function logout_action() {
 		$this->_scripto->logout();
-		wp_redirect( $this->scripto_url( 'index' ) );
+		$this->redirect( 'index' );
 		exit;
 	}
 	
 	/**
 	 * The error page.
 	 */
-	public function error_page() {
-		
-		// Empty all content of the page that was set before the error.
-		$this->reset_page();
-		
-		$this->_add_template( 'navigation' );
-		$this->_add_template( 'error' );
+	public function error_action() {
+		// Empty the view content that was set before the error.
+		$this->reset_view();
+	}
+	
+	/**
+	 * Get the main navigation for the view.
+	 * 
+	 * @return string
+	 */
+	public function get_navigation() {
+		$navigation = '';
+		if ( in_array( $_GET['scripto_action'], array('index', 'user_document_pages') ) ) {
+			$navigation .= 'home';
+		} else {
+			$navigation .= '<a href="' . $this->scripto_url( 'index' ) . '">home</a>';
+		}
+		$navigation .= ' | ';
+		if ( 'recent_changes' == $_GET['scripto_action'] ) {
+			$navigation .= 'recent changes';
+		} else {
+			$navigation .= '<a href="' . $this->scripto_url( 'recent_changes' ) . '">recent changes</a>';
+		}
+		$navigation .= ' | ';
+		if ( $this->_scripto->isLoggedIn() ) {
+			$navigation .= 'logged in as ' . $this->_scripto->getUserName() . ' (<a href="' . $this->scripto_url( 'logout' ) . '">logout</a>)';
+		} else {
+			if ( 'login' == $_GET['scripto_action'] ) {
+				$navigation .= 'login';
+			} else {
+				$navigation .= '<a href="' . $this->scripto_url( 'login' ) . '">login</a>';
+			}
+		}
+		return "<p>$navigation</p>";
 	}
 	
 	/**
@@ -579,16 +624,16 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Build a URL to the Scripto application.
+	 * Build a URL to a Scripto action.
 	 * 
-	 * @param string $page_name
+	 * @param string $action_name
 	 * @param array $params
 	 * @return string
 	 */
-	public function scripto_url( $page_name, $params = array() ) {
+	public function scripto_url( $action_name, $params = array() ) {
 		$page_params = array(
 			'p' => $this->_application_page_id, 
-			'scripto_page' => $page_name, 
+			'scripto_action' => $action_name, 
 		);
 		$params = $page_params + $params;
 		$url = site_url( '?' . http_build_query( $params ) );
@@ -596,22 +641,67 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Dispatch the specified page.
+	 * Redirect to another action.
 	 * 
-	 * The passed page name must correspond to a method in this class, 
-	 * suffixed with "_page". Must be called before output is sent ot the 
-	 * browser.
+	 * @param string $action_name
+	 * @param array $params
+	 */
+	public function redirect( $action_name, $params = array() ) {
+		wp_redirect( $this->scripto_url( $action_name, $params ) );
+		exit;
+	}
+	
+	/**
+	 * Dispatch the specified action.
+	 * 
+	 * The passed action name must correspond to a method in this class that is 
+	 * suffixed with "_action". Must be called before output is sent ot the 
+	 * browser. This strategy separates business logic from the view script, 
+	 * simulating the MVC pattern. View scripts exist in the views/ directory.
 	 * 
 	 * @throws Scripto_Exception
-	 * @param string $page_name
-	 * @return string
+	 * @param string $action_name
 	 */
-	public function dispatch( $page_name ) {
-		$page_method = $page_name . '_page';
-		if ( ! method_exists( $this, $page_method ) ) {
-			throw new Scripto_Exception( "The Scripto application page \"$page_name\" does not exist." );
+	public function dispatch( $action_name ) {
+		
+		// Dispatch the action.
+		$action_method = $action_name . '_action';
+		if ( ! method_exists( $this, $action_method ) ) {
+			throw new Scripto_Exception( "The Scripto action \"$action_name\" does not exist." );
 		}
-		$this->$page_method();
+		$this->$action_method();
+		
+		// Set the view.
+		$view_path = dirname( __FILE__ ) . "/views/$action_name.php";
+		if ( ! is_file( $view_path ) ) {
+			throw new Scripto_Exception( "The Scripto view script \"$action_name\" does not exist." );
+		}
+		
+		// Import passed variables into the current scope.
+		extract( $this->_view_vars );
+		
+		// Output buffer and include the view, then set the content.
+		ob_start();
+		include $view_path;
+		$this->_view = ob_get_contents();
+		ob_end_clean();
+	}
+	
+	/**
+	 * Render the view.
+	 * 
+	 * Assumes self::dispatch() has already been called and that the page 
+	 * content is complete. May be called after output is sent to the browser.
+	 */
+	public function render() {
+		echo $this->_view;
+	}
+	
+	/**
+	 * Assign a variable to the view.
+	 */
+	public function assign( $name, $value ) {
+		$this->_view_vars[$name] = $value;
 	}
 	
 	/**
@@ -631,52 +721,9 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Get the application page.
-	 * 
-	 * Adds wrapping div tags. Assumes self::dispatch() has already been called 
-	 * and that the page content is complete. May be called after output is sent 
-	 * to the browser.
+	 * Reset the view.
 	 */
-	public function get_page() {
-		$page = "<div class=\"scripto-page\">{$this->_page}</div>";
-		return $page;
-	}
-	
-	/**
-	 * Reset the application page.
-	 */
-	public function reset_page() {
-		$this->_page = '';
-	}
-	
-	/**
-	 * Get the specified template and append the result to the page.
-	 * 
-	 * Templates contain discrete HTML content of Scripto application pages. 
-	 * Page methods use this method to append content to the page. This strategy 
-	 * separates business logic from the HTML template, simulating the MVC 
-	 * pattern. Template files exist in the templates/ directory.
-	 * 
-	 * @param string $template_name The name of the template, without the .php
-	 * file extension.
-	 * @param array $vars Associative array containg variables to be imported 
-	 * into the template's scope.
-	 */
-	protected function _add_template( $template_name, array $vars = array() ) {
-		
-		// The template file must exist.
-		$template_path = dirname( __FILE__ ) . "/templates/$template_name.php";
-		if ( ! is_file( $template_path ) ) {
-			throw new Scripto_Exception( "The Scripto template \"$template_name\" does not exist." );
-		}
-		
-		// Import passed variables into the current scope.
-		extract( $vars );
-		
-		// Output buffer and include the template, then set the content.
-		ob_start();
-		include $template_path;
-		$this->_page .= ob_get_contents();
-		ob_end_clean();
+	public function reset_view() {
+		$this->_view = '';
 	}
 }
