@@ -1,8 +1,8 @@
 <?php
 /**
- * Contains the Scripto application.
+ * Controls the actions necessary to run the Scripto application.
  */
-class Scripto_Application
+class Scripto_Controller
 {
 	/**
 	 * @var The instance of this class.
@@ -112,7 +112,7 @@ class Scripto_Application
 	);
 	
 	/**
-	 * Construct the Scripto application.
+	 * Construct the Scripto controller.
 	 * 
 	 * Instantiate using self::get_instance().
 	 * 
@@ -125,7 +125,7 @@ class Scripto_Application
 	}
 	
 	/**
-	 * Scripto application singleton.
+	 * Scripto controller singleton.
 	 * 
 	 * Must pass the Scripto object on the first instantiation.
 	 * 

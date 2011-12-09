@@ -127,22 +127,24 @@ class Scripto_Plugin
 		
 		require_once 'Scripto.php';
 		require_once 'class-scripto-adapter.php';
-		require_once 'class-scripto-application.php';
+		require_once 'class-scripto-controller.php';
 		
+		// Dispatch the specified action.
 		try {
 			$scripto = new Scripto( new Scripto_Adapter, 
 				array('api_url' => self::get_setting( 'mediawiki_api_url' )));
-			$scripto_application = Scripto_Application::get_instance( $scripto );
+			$scripto_controller = Scripto_Controller::get_instance( $scripto );
 			
 			// Set the page and dispatch it.
 			if ( ! isset( $_GET['scripto_action'] ) ) {
 				$_GET['scripto_action'] = 'index';
 			}
-			$scripto_application->dispatch( $_GET['scripto_action'] );
+			$scripto_controller->dispatch( $_GET['scripto_action'] );
 		
+		// Dispatch a general error if something when wrong.
 		} catch ( Scripto_Exception $e ) {
-			$scripto_application->set_message( $e->getMessage() );
-			$scripto_application->dispatch( 'error' );
+			$scripto_controller->set_message( $e->getMessage() );
+			$scripto_controller->dispatch( 'error' );
 		} 
 	}
 	
@@ -319,8 +321,8 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	 * Display the Scripto application.
 	 */
 	public static function scripto_application( $atts, $content, $code ) {
-		$scripto_application = Scripto_Application::get_instance();
-		$scripto_application->render();
+		$scripto_controller = Scripto_Controller::get_instance();
+		$scripto_controller->render();
 	}
 	
 	/**
