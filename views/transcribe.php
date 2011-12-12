@@ -16,7 +16,7 @@
 <p>You don't have permission to transcribe this page.</p>
 <?php endif; ?>
 
-<p><a href="<?php echo $url_talk; ?>">discuss this page</a> | <a href="<?php echo $url_transcription_history; ?>">view transcription history</a></p>
+<p><a href="<?php echo $url_talk; ?>">discuss page</a> | <a href="<?php echo $url_transcription_history; ?>">view history</a> | <a href="<?php echo $url_document; ?>">view document</a></p>
 
 <h2>Current Transcription</h2>
 <div><?php echo $doc->getTranscriptionPageHtml(); ?></div>
