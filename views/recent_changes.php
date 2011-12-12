@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <h2>Recent Changes to Scripto</h2>
 
@@ -30,3 +32,5 @@
 <?php else: ?>
 <p>There are no recent changes.</p>
 <?php endif; ?>
+
+</div>

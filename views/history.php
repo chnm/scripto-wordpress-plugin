@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <h2>History for <?php if ( '1' == $_GET['scripto_ns_index'] ): ?>Talk: <?php endif; ?><cite><?php echo $doc->getPageName(); ?></cite></h2>
 <h3>in <cite><?php echo $doc->getTitle(); ?></cite></h3>
@@ -31,3 +33,5 @@
 <?php else: ?>
 <p>There is no history for this page.</p>
 <?php endif; ?>
+
+</div>

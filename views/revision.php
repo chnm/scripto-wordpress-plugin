@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <h2>Revision of <?php if ( '1' == $_GET['scripto_ns_index'] ): ?>Talk: <?php endif; ?><cite><?php echo $doc->getPageName(); ?></cite><br />
 as of <?php echo date( 'H:i:s, M d, Y', strtotime( $revision['timestamp'] ) ) ?>; <?php echo ucfirst( $revision['action'] ); ?> by <?php echo $revision['user']; ?></h2>
@@ -13,3 +15,5 @@ as of <?php echo date( 'H:i:s, M d, Y', strtotime( $revision['timestamp'] ) ) ?>
 	<input type="submit" name="scripto_submit_revert" value="Revert to this revision" /> 
 </form>
 <?php endif; ?>
+
+</div>

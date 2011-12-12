@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <style type="text/css">
 	#scripto-diff tr {border: none !important;}
@@ -28,6 +30,6 @@
 </table>
 
 <h2>Revision as of <?php echo $revision_as_of; ?></h2>
-<div>
-	<?php echo $revision_html; ?>
+<div><?php echo $revision_html; ?></div>
+
 </div>

@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <h2>Your Contributions</h2>
 
@@ -24,3 +26,5 @@
 <?php else: ?>
 <p>You have no contributions.</p>
 <?php endif; ?>
+
+</div>

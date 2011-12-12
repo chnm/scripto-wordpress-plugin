@@ -1,4 +1,6 @@
-<?php echo $this->get_navigation(); ?>
+<div id="scripto">
+
+<p><?php echo $this->get_navigation(); ?></p>
 
 <p>You may log in to access your account and enable certain Scripto features. 
 Login may not be required by the administrator.</p>
@@ -12,3 +14,5 @@ Login may not be required by the administrator.</p>
 	<p>Password <input type="password" name="scripto_password" /></p>
 	<p><input type="submit" name="scripto_submit_login" value="Login" /></p>
 </form>
+
+</div>

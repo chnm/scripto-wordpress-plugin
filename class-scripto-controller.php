@@ -568,7 +568,7 @@ class Scripto_Controller
 				$navigation .= '<a href="' . $this->scripto_url( 'login' ) . '">login</a>';
 			}
 		}
-		return "<p>$navigation</p>";
+		return $navigation;
 	}
 	
 	/**
