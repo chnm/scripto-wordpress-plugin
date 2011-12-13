@@ -280,6 +280,11 @@ class Scripto_Controller
 			$doc->editTranscriptionPage( $_POST['scripto_transcripton'] );
 		}
 		
+		// Import the transcription.
+		if ( isset( $_POST['scripto_submit_import_page'] ) ) {
+			$doc->exportPage( 'html' );
+		}
+		
 		// Set the transcription history URL.
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 

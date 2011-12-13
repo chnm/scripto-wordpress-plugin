@@ -30,6 +30,8 @@ register_uninstall_hook( __FILE__, 'Scripto_Plugin::uninstall' );
 
 add_action( 'admin_menu', 'Scripto_Plugin::admin_menu_settings' );
 add_action( 'admin_init', 'Scripto_Plugin::admin_init_settings' );
+add_action( 'admin_init', 'Scripto_Plugin::admin_init_meta_box' );
+add_action( 'save_post', 'Scripto_Plugin::save_post_meta_box' );
 add_action( 'wp', 'Scripto_Plugin::set_scripto_application' );
 
 add_filter( 'plugin_action_links', 'Scripto_Plugin::plugin_action_links_settings', 10, 2 );

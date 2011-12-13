@@ -132,12 +132,14 @@ class Scripto_Adapter implements Scripto_Adapter_Interface {
 	 * Import the attachment post transcription.
 	 */
 	public function importDocumentPageTranscription( $post_id, $attachment_post_id, $text ) {
-		update_post_meta( $attachment_post_id, 
-			'_scripto_attachment_transcription', 
-			$text );
+		update_post_meta( $attachment_post_id, 'scripto_attachment_transcription', $text );
 	}
 	
+	/**
+	 * Import the post transcription, i.e. all attachment transcriptions of this 
+	 * post.
+	 */
 	public function importDocumentTranscription( $post_id, $text ) {
-		
+		update_post_meta( $post_id, 'scripto_post_transcription', $text );
 	}
 }

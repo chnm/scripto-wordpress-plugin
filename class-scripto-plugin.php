@@ -104,6 +104,79 @@ class Scripto_Plugin
 	}
 	
 	/**
+	 * Prepare the post transcription fields.
+	 */
+	public static function admin_init_meta_box() {
+		
+		add_meta_box( 'scripto_post_transcription_section', 
+			'Scripto Transcription', 
+			'Scripto_Plugin::meta_box', 
+			'post' );
+		
+		add_meta_box( 'scripto_post_transcription_section', 
+			'Scripto Transcription', 
+			'Scripto_Plugin::meta_box', 
+			'page' );
+	}
+	
+	/**
+	 * Save a post transcription field.
+	 */
+	public static function save_post_meta_box( $post_id ) {
+		
+		// Do not save on autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		
+		// Check permissions.
+		if ( 'page' == $_POST['post_type'] ) {
+			if ( ! current_user_can( 'edit_page', $post_id ) ) {
+				return;
+			}
+		} else {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				return;
+			}
+		}
+		
+		// Get the post ID from the revision ID.
+		if ( $the_post = wp_is_post_revision( $post_id ) ) {
+			$post_id = $the_post;
+		}
+		
+		// Save the transcription.
+		if ( isset( $_POST['scripto_import_transcription'] ) ) {
+			
+			set_include_path(get_include_path() 
+				. PATH_SEPARATOR . self::get_setting( 'zend_framework_path' ) 
+				. PATH_SEPARATOR . self::get_scripto_path() );
+		
+			require_once 'Scripto.php';
+			require_once 'class-scripto-adapter.php';
+			$scripto = new Scripto( new Scripto_Adapter, 
+				array('api_url' => self::get_setting( 'mediawiki_api_url' )));
+			$doc = $scripto->getDocument( $post_id );
+			$doc->export( 'html' );
+			
+		} else {
+			$post_transcription = stripslashes($_POST['scripto_post_transcription']);
+			update_post_meta( $post_id, 'scripto_post_transcription', $post_transcription );
+		}
+	}
+	
+	/**
+	 * Display the post transcription field.
+	 */
+	public static function meta_box( $post ) {
+		$post_transcription = get_post_meta( $post->ID, 'scripto_post_transcription', true );
+?>
+<p><input type="checkbox" name="scripto_import_transcription" value="import" /> Import all page transcriptions on update?</p>
+<textarea id="scripto_post_transcription" name="scripto_post_transcription" cols="80" rows="12"><?php echo $post_transcription; ?></textarea>
+<?php
+	}
+	
+	/**
 	 * Load the Scripto application.
 	 * 
 	 * Loading the application at this early stage is necessary because Scripto 
@@ -158,7 +231,7 @@ class Scripto_Plugin
 	<form method="post" action="options.php">
 		<?php settings_fields( 'scripto_settings_group' ); ?>
 		<?php do_settings_sections( 'scripto_settings_sections_page' ); ?>
-		<p class="submit"><input type="submit" class="button-primary" value="Save Changes" /></p>
+		<p class="submit"><input type="submit" class="button-primary" value="Save changes" /></p>
 	</form>
 </div>
 <?php

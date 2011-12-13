@@ -10,7 +10,7 @@
 <?php if ( $doc->canEditTalkPage() ): ?>
 <form action="" method="post">
 	<textarea name="scripto_talk" cols="45" rows="12"><?php echo $doc->getTalkPageWikitext(); ?></textarea>
-	<input type="submit" name="scripto_submit_talk" value="Save Discussion" />
+	<input type="submit" name="scripto_submit_talk" value="Save discussion" />
 </form>
 <?php else: ?>
 <p>You don't have permission to discuss this page.</p>
