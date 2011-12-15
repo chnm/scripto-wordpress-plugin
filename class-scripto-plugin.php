@@ -54,15 +54,9 @@ class Scripto_Plugin
 			delete_option( $scripto_option );
 		}
 		
-		// Delete the attachment transcriptions.
-		$args = array(
-			'post_type'   => 'attachment', 
-			'numberposts' => -1, // get all attachment posts
-		);
-		$attachments = get_posts( $args );
-		foreach ( $attachments as $attachment ) {
-			delete_post_meta( $attachment->id, 'scripto_attachment_transcription' );
-		}
+		// Delete the imported post and attachment transcriptions.
+		delete_post_meta_by_key( 'scripto_post_transcription' );
+		delete_post_meta_by_key( 'scripto_attachment_transcription' );
 	}
 	
 	/**

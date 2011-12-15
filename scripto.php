@@ -26,7 +26,8 @@ St, Fifth Floor, Boston, MA  02110-1301  USA
 require_once 'class-scripto-plugin.php';
 
 register_activation_hook( __FILE__, 'Scripto_Plugin::activation' );
-register_uninstall_hook( __FILE__, 'Scripto_Plugin::uninstall' );
+// Uninstall hook will not be registered until it can be adequately tested.
+//register_uninstall_hook( __FILE__, 'Scripto_Plugin::uninstall' );
 
 add_action( 'admin_menu', 'Scripto_Plugin::admin_menu_settings' );
 add_action( 'admin_init', 'Scripto_Plugin::admin_init_settings' );
