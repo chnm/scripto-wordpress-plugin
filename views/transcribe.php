@@ -26,6 +26,18 @@
 </form>
 <?php endif; ?>
 
+<?php if ( $this->_scripto->canProtect() ): ?>
+<?php if ( $doc->isProtectedTranscriptionPage() ): ?>
+<form action="" method="post">
+<input type="submit" name="scripto_submit_unprotect_page" value="Unprotect this page" />
+</form>
+<?php else: ?>
+<form action="" method="post">
+<input type="submit" name="scripto_submit_protect_page" value="Protect this page" />
+</form>
+<?php endif; ?>
+<?php endif; ?>
+
 <div><?php echo $doc->getTranscriptionPageHtml(); ?></div>
 
 </div>

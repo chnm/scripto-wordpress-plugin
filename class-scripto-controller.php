@@ -285,6 +285,16 @@ class Scripto_Controller
 			$doc->exportPage( 'html' );
 		}
 		
+		// Protect the page.
+		if ( isset( $_POST['scripto_submit_protect_page'] ) ) {
+			$doc->protectTranscriptionPage();
+		}
+		
+		// Unprotect the page.
+		if ( isset( $_POST['scripto_submit_unprotect_page'] ) ) {
+			$doc->unprotectTranscriptionPage();
+		}
+		
 		// Set the transcription history URL.
 		$params = array(
 			'scripto_doc_id'      => $_GET['scripto_doc_id'], 
