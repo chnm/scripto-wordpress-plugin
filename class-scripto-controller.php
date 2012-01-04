@@ -205,26 +205,24 @@ class Scripto_Controller
 			
 			// "Changes" column.
 			$changes = ucfirst($recent_change['action']);
-			if ( ! in_array( $recent_change['action'], array('Protected', 'Unprotected') ) ) {
-				$params = array(
-					'scripto_doc_id'      => $recent_change['document_id'], 
-					'scripto_doc_page_id' => $recent_change['document_page_id'], 
-					'scripto_ns_index'    => $recent_change['namespace_index'], 
-					'scripto_old_rev_id'  => $recent_change['old_revision_id'], 
-					'scripto_rev_id'      => $recent_change['revision_id'], 
-				);
-				$url_diff = $this->scripto_url( 'diff', $params );
-				$params = array(
-					'scripto_doc_id'      => $recent_change['document_id'], 
-					'scripto_doc_page_id' => $recent_change['document_page_id'], 
-					'scripto_ns_index'    => $recent_change['namespace_index'], 
-				);
-				$url_history = $this->scripto_url( 'history', $params );
-				if ($recent_change['new']) {
-					$changes .= ' (diff | <a href="' . $url_history . '">hist</a>)';
-				} else {
-					$changes .= ' (<a href="' . $url_diff . '">diff</a> | <a href="' . $url_history . '">hist</a>)';
-				}
+			$params = array(
+				'scripto_doc_id'      => $recent_change['document_id'], 
+				'scripto_doc_page_id' => $recent_change['document_page_id'], 
+				'scripto_ns_index'    => $recent_change['namespace_index'], 
+				'scripto_old_rev_id'  => $recent_change['old_revision_id'], 
+				'scripto_rev_id'      => $recent_change['revision_id'], 
+			);
+			$url_diff = $this->scripto_url( 'diff', $params );
+			$params = array(
+				'scripto_doc_id'      => $recent_change['document_id'], 
+				'scripto_doc_page_id' => $recent_change['document_page_id'], 
+				'scripto_ns_index'    => $recent_change['namespace_index'], 
+			);
+			$url_history = $this->scripto_url( 'history', $params );
+			if ($recent_change['new'] || in_array( $recent_change['action'], array('protected', 'unprotected') ) ) {
+				$changes .= ' (diff | <a href="' . $url_history . '">hist</a>)';
+			} else {
+				$changes .= ' (<a href="' . $url_diff . '">diff</a> | <a href="' . $url_history . '">hist</a>)';
 			}
 			$recent_changes[$i]['changes'] = $changes;
 			
