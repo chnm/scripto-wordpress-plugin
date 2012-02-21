@@ -167,10 +167,10 @@ class Scripto_Controller
 			// "Document Page Name" column.
 			if ( 1 == $user_document_page['namespace_index'] ) {
 				$scripto_action = 'talk';
-				$page_name = 'Talk: ' . $user_document_page['document_page_name'];
+				$page_name = 'Talk: ' . $this->truncate( $user_document_page['document_page_name'], 60 );
 			} else {
 				$scripto_action = 'transcribe';
-				$page_name = $user_document_page['document_page_name'];
+				$page_name = $this->truncate( $user_document_page['document_page_name'], 60 );
 			}
 			$params = array(
 				'scripto_doc_id'      => $user_document_page['document_id'], 
@@ -185,7 +185,7 @@ class Scripto_Controller
 			
 			// "Document Title" column.
 			$url_post = site_url( '?p=' . $user_document_page['document_id'] );
-			$document_title = '<a href="' . $url_post . '">' . $user_document_page['document_title'] . '</a>';
+			$document_title = '<a href="' . $url_post . '">' . $this->truncate( $user_document_page['document_title'], 60, 'Untitled' ) . '</a>';
 			$user_document_pages[$i]['document_title'] = $document_title;
 		}
 		
@@ -229,10 +229,10 @@ class Scripto_Controller
 			// "Document Page Name" column.
 			if ( 1 == $recent_change['namespace_index'] ) {
 				$scripto_action = 'talk';
-				$page_name = 'Talk: ' . $recent_change['document_page_name'];
+				$page_name = 'Talk: ' . $this->truncate( $recent_change['document_page_name'], 30 );
 			} else {
 				$scripto_action = 'transcribe';
-				$page_name = $recent_change['document_page_name'];
+				$page_name = $this->truncate( $recent_change['document_page_name'], 30 );
 			}
 			$params = array(
 				'scripto_doc_id'      => $recent_change['document_id'], 
@@ -257,7 +257,7 @@ class Scripto_Controller
 			
 			// "Document Title" column.
 			$url_post = site_url( '?p=' . $recent_change['document_id'] );
-			$document_title = '<a href="' . $url_post . '">' . $recent_change['document_title'] . '</a>';
+			$document_title = '<a href="' . $url_post . '">' . $this->truncate( $recent_change['document_title'], 30, 'Untitled' ) . '</a>';
 			$recent_changes[$i]['document_title'] = $document_title;
 			
 			$i++;
@@ -753,5 +753,29 @@ class Scripto_Controller
 	 */
 	public function reset_view() {
 		$this->_view = '';
+	}
+	
+	/**
+	 * Return a truncated string with left and right padding.
+	 * 
+	 * Primarily used for truncating long document page names that would 
+	 * otherwise break tables.
+	 * 
+	 * @param string $str The string to truncate.
+	 * @param int $length The trancate length.
+	 * @param string $default The string to return if the string is empty.
+	 * @return string
+	 */
+	public function truncate($str, $length, $default = '')
+	{
+		$str = trim($str);
+		if (empty($str)) {
+			return $default;
+		}
+		if (strlen($str) <= $length) {
+			return $str;
+		}
+		$padding = floor($length / 2);
+		return preg_replace('/^(.{' . $padding . '}).*(.{' . $padding . '})$/', '$1... $2', $str);
 	}
 }
