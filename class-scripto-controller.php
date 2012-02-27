@@ -626,7 +626,7 @@ class Scripto_Controller
 		
 		// Other attachment.
 		} else {
-			$media_viewer = '<a href="' . $attachment_url . '">' . get_the_title( $attachment_post_id ) . '</a>';
+			$media_viewer = 'Open page: <a href="' . $attachment_url . '" target="_blank">' . get_the_title( $attachment_post_id ) . '</a>';
 		}
 		
 		return $media_viewer;
