@@ -95,6 +95,12 @@ class Scripto_Plugin
 			'Scripto_Plugin::settings_field_mediawiki_api_url', 
 			'scripto_settings_sections_page', 
 			'scripto_settings_section_configuration' );
+			
+		add_settings_field( 'scripto_home_page_text', 
+			'Home Page Text', 
+			'Scripto_Plugin::settings_field_home_page_text', 
+			'scripto_settings_sections_page', 
+			'scripto_settings_section_configuration' );
 	}
 	
 	/**
@@ -263,6 +269,12 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 <?php
 	}
 	
+	public static function settings_field_home_page_text() {
+?>
+<textarea id="scripto_home_page_text" name="scripto_settings[home_page_text]" cols="60" rows="10"><?php echo self::get_setting('home_page_text') ?></textarea>
+<?php
+	}
+	
 	/**
 	 * Validate the setting page options.
 	 * 
@@ -272,8 +284,9 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	public static function settings_validate( $options ) {
 		
 		// Return only options that exist on the settings form.
-		$valid_options['zend_framework_path'] = $options['zend_framework_path'];
-		$valid_options['mediawiki_api_url'] = $options['mediawiki_api_url'];
+		$valid_options['zend_framework_path'] = trim( $options['zend_framework_path'] );
+		$valid_options['mediawiki_api_url'] = trim( $options['mediawiki_api_url'] );
+		$valid_options['home_page_text'] = trim( $options['home_page_text'] );
 		
 		// Validate path to Zend Framework.
 		if ( ! is_dir( $options['zend_framework_path'] ) ) {

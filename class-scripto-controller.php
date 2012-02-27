@@ -146,6 +146,7 @@ class Scripto_Controller
 		if ( $this->_scripto->isLoggedIn() ) {
 			$this->redirect( 'user_document_pages' );
 		}
+		$this->assign('home_page_text', Scripto_Plugin::get_setting('home_page_text'));
 	}
 	
 	/**
