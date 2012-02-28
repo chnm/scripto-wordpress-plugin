@@ -16,7 +16,7 @@
 <p>You don't have permission to discuss this page.</p>
 <?php endif; ?>
 
-<p><a href="<?php echo $url_transcription; ?>">transcribe page</a> | <a href="<?php echo $url_talk_history; ?>">view history</a> | <a href="<?php echo $url_document; ?>">view document</a></p>
+<p><a href="<?php echo $url_transcription; ?>">transcribe page</a> | <a href="<?php echo $url_talk_history; ?>">view history</a> | <a href="<?php echo $url_post; ?>">view post</a></p>
 
 <h2>Current Discussion</h2>
 <div><?php echo $doc->getTalkPageHtml(); ?></div>
