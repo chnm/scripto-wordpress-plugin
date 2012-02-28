@@ -309,12 +309,12 @@ class Scripto_Controller
 		);
 		$url_talk = $this->scripto_url( 'talk', $params );
 		
-		$url_post = site_url( '?p=' . $doc->getId() );
+		$url_document = site_url( '?p=' . $doc->getId() );
 		
 		$this->assign( 'doc', $doc );
 		$this->assign( 'url_transcription_history', $url_transcription_history );
 		$this->assign( 'url_talk', $url_talk );
-		$this->assign( 'url_post', $url_post );
+		$this->assign( 'url_document', $url_document );
 	}
 	
 	/**
@@ -344,12 +344,12 @@ class Scripto_Controller
 		);
 		$url_transcription = $this->scripto_url( 'transcribe', $params );
 		
-		$url_post = site_url( '?p=' . $doc->getId() );
+		$url_document = site_url( '?p=' . $doc->getId() );
 		
 		$this->assign( 'doc', $doc );
 		$this->assign( 'url_talk_history', $url_talk_history );
 		$this->assign( 'url_transcription', $url_transcription );
-		$this->assign( 'url_post', $url_post );
+		$this->assign( 'url_document', $url_document );
 	}
 	
 	/**
@@ -435,13 +435,13 @@ class Scripto_Controller
 		$url_transcribe = $this->scripto_url( 'transcribe', $params );
 		$url_talk = $this->scripto_url( 'talk', $params );
 		
-		$url_post = site_url( '?p=' . $doc->getId() );
+		$url_document = site_url( '?p=' . $doc->getId() );
 		
 		$this->assign( 'doc', $doc );
 		$this->assign( 'history', $history );
 		$this->assign( 'url_transcribe', $url_transcribe );
 		$this->assign( 'url_talk', $url_talk );
-		$this->assign( 'url_post', $url_post );
+		$this->assign( 'url_document', $url_document );
 	}
 	
 	/**
@@ -476,7 +476,7 @@ class Scripto_Controller
 		$url_transcribe = $this->scripto_url( 'transcribe', $params );
 		$url_talk = $this->scripto_url( 'talk', $params );
 		
-		$url_post = site_url( '?p=' . $doc->getId() );
+		$url_document = site_url( '?p=' . $doc->getId() );
 		
 		$this->assign( 'doc', $doc );
 		$this->assign( 'col_1_header', $col_1_header );
@@ -485,7 +485,7 @@ class Scripto_Controller
 		$this->assign( 'revision_html', $revision_html );
 		$this->assign( 'url_transcribe', $url_transcribe );
 		$this->assign( 'url_talk', $url_talk );
-		$this->assign( 'url_post', $url_post );
+		$this->assign( 'url_document', $url_document );
 	}
 	
 	/**
@@ -522,13 +522,13 @@ class Scripto_Controller
 		$url_transcribe = $this->scripto_url( 'transcribe', $params );
 		$url_talk = $this->scripto_url( 'talk', $params );
 		
-		$url_post = site_url( '?p=' . $doc->getId() );
+		$url_document = site_url( '?p=' . $doc->getId() );
 		
 		$this->assign( 'doc', $doc );
 		$this->assign( 'revision', $revision );
 		$this->assign( 'url_transcribe', $url_transcribe );
 		$this->assign( 'url_talk', $url_talk );
-		$this->assign( 'url_post', $url_post );
+		$this->assign( 'url_document', $url_document );
 	}
 	
 	/**
