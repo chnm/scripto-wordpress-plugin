@@ -248,6 +248,12 @@ power its API. It also requires you to download and install <a href="http://www.
 a popular free web-based wiki software application that Scripto uses to manage 
 user and transcription data. Once you have successfully downloaded Zend 
 Framework and installed MediaWiki, you can configure the Scripto plugin below.</p>
+
+<p>This plugin uses Google Docs Viewer and Zoom.it to render documents in 
+the transcription interface. By using these services you awknowledge that you 
+have read and agreed to the <a href="http://docs.google.com/viewer/TOS?hl=en">Google 
+Docs Viewer Terms of Service</a> and the <a href="http://zoom.it/pages/terms/" target="_blank">Microsoft 
+Zoom.it Terms of Service</a>.</p>
 <?php
 	}
 	
@@ -257,6 +263,7 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	public static function settings_field_mediawiki_api_url() {
 ?>
 <input id="scripto_mediawiki_api_url" name="scripto_settings[mediawiki_api_url]" size="60" type="text" value="<?php echo self::get_setting('mediawiki_api_url'); ?>" />
+<span class="description">URL to your <a href="http://www.mediawiki.org/wiki/API:Quick_start_guide#What_you_need_to_access_the_API" target="_blank">MediaWiki installation API</a>.</span>
 <?php
 	}
 
@@ -266,12 +273,17 @@ Framework and installed MediaWiki, you can configure the Scripto plugin below.</
 	public static function settings_field_zend_framework_path() {
 ?>
 <input id="scripto_zend_framework_path" name="scripto_settings[zend_framework_path]" size="60" type="text" value="<?php echo self::get_setting('zend_framework_path') ?>" />
+<span class="description">Absolute path to the directory containing the Zend library.</span>
 <?php
 	}
 	
 	public static function settings_field_home_page_text() {
 ?>
 <textarea id="scripto_home_page_text" name="scripto_settings[home_page_text]" cols="60" rows="10"><?php echo self::get_setting('home_page_text') ?></textarea>
+<p><span class="description">Enter text that will appear on the Scripto home page. 
+Use this to display custom messages to your users, such as instructions on how 
+to use Scripto and how to register for a MediaWiki account. Default text will 
+appear if nothing is entered. You may use HTML.</span></p>
 <?php
 	}
 	
