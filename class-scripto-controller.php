@@ -188,6 +188,7 @@ class Scripto_Controller
 			$url_post = site_url( '?p=' . $user_document_page['document_id'] );
 			$document_title = '<a href="' . $url_post . '">' . $this->truncate( $user_document_page['document_title'], 60, 'Untitled' ) . '</a>';
 			$user_document_pages[$i]['document_title'] = $document_title;
+			$i++;
 		}
 		
 		$this->assign( 'user_document_pages', $user_document_pages );
@@ -616,8 +617,13 @@ class Scripto_Controller
 			$args = array( 'url' => $attachment_url );
 			$url = 'http://api.zoom.it/v1/content?' . http_build_query($args);
 			$response = wp_remote_get( $url );
-			$response_body = json_decode( $response['body'], true );
-			$media_viewer = $response_body['embedHtml'];
+			if ( is_wp_error( $response ) ) {
+				$media_viewer = 'Error when contacting the Zoom.it service.';
+				$media_viewer .= '<br />Open page: <a href="' . $attachment_url . '" target="_blank">' . get_the_title( $attachment_post_id ) . '</a>';
+			} else {
+				$response_body = json_decode( $response['body'], true );
+				$media_viewer = $response_body['embedHtml'];
+			}
 			
 		// Document attachmnet.
 		} else if ( in_array( $mime_type, $this->_mime_types_google_docs ) ) {
