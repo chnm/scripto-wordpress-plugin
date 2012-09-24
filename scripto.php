@@ -3,7 +3,7 @@
 Plugin Name: Scripto
 Plugin URI: http://scripto.org/
 Description: Adds the ability to transcribe files using the Scripto library.
-Version: 1.0
+Version: 1.1
 Author: Center for History and New Media
 Author URI: http://chnm.gmu.edu/
 License: GPL2
